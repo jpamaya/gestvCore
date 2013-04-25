@@ -37,17 +37,50 @@ import model.MyMonitor;
 
 public class DynamicMBeanFactory {
 
+	public static int counter=0;	
 	public static MBeanServer mbeanServer;
-	public static String filename = "RWebservices";
-	public static String filenameM = "exampleMonitors";
+	public static String filename = "example.xml";
+	public static String filenameM = "exampleMonitors.xml";
     private static MonitorListener listener = new MonitorListener();
-    private static MessageListener attlist = new MessageListener();
+    private static AttributeHistory attlist = new AttributeHistory();
     private static List<Monitor> monitors = new ArrayList<Monitor>();
 
-    public DynamicMBeanFactory(){
-    	super();
-    }
-    
+	public static MyDynamicMBean getDynamicBean() {
+		mbeanServer = ManagementFactory.getPlatformMBeanServer();
+		MyDynamicMBean dynamicMBean = null;
+		try {
+			dynamicMBean = new MyDynamicMBean(filename);
+			mbeanServer.registerMBean(dynamicMBean, new ObjectName(dynamicMBean.getClass().getPackage().getName() + ":type=" + dynamicMBean.getClass().getSimpleName()+counter));
+			System.out.println("registrado mbean "+counter);
+			counter++;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return dynamicMBean;
+	}
+	
+	public static MyDynamicMBean getDynamicBean(String domain, String type, String pathXml) {
+		//Register a MBean
+		mbeanServer = ManagementFactory.getPlatformMBeanServer();
+		MyDynamicMBean dynamicMBean = null;
+		try {
+			dynamicMBean = new MyDynamicMBean(pathXml+"/"+filename);
+			dynamicMBean.setDomain(domain);
+			dynamicMBean.setType(type);
+			mbeanServer.registerMBean(dynamicMBean, new ObjectName(domain + ":type=" + type));
+			mbeanServer.addNotificationListener(new ObjectName(domain + ":type=" + type), attlist, null, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		//Monitors ms = loadMonitor(pathXml);
+		//Monitors ms = null;
+
+		return dynamicMBean;
+	}
+	
+	
 	public static MyDynamicMBean getDynamicBean(String domain, String name, String type, String pathXml, String namefile) {
 		//Register a MBean
 		String filenameU=null;

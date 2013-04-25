@@ -1,34 +1,24 @@
-package test;
+package gestv;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.UnknownHostException;
-//import java.sql.Timestamp;
 import java.util.Scanner;
-//import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.management.ListenerNotFoundException;
 import javax.management.MBeanServer;
 
-import org.bson.types.ObjectId;
-
-import com.mongodb.BasicDBObject;
-//import com.mongodb.DB;
-//import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
-//import com.mongodb.DBObject;
-//import com.mongodb.MongoClient;
 import com.sun.jersey.api.container.httpserver.HttpServerFactory;
 import com.sun.net.httpserver.HttpServer;
-
 import mbean.DynamicMBeanMirrorFactory;
 import mbean.MBSAConnection;
 import mbean.MBSAConnections;
 import model.MongoDBConnection;
 
-public class TestMBeanServerMaster {
+public class MBeanServerMaster {
 	
     private MBeanServer masterMbeanServer;
     static final String BASE_URI = "http://0.0.0.0:9999/mbs/";
@@ -36,10 +26,10 @@ public class TestMBeanServerMaster {
     
 	public static void main(String[] args) {
 		@SuppressWarnings("unused")
-		TestMBeanServerMaster mmaster = new TestMBeanServerMaster();
+		MBeanServerMaster mmaster = new MBeanServerMaster();
 	}
 
-	public TestMBeanServerMaster() {
+	public MBeanServerMaster() {
 		Logger.getLogger("javax.management.remote").setLevel(Level.OFF);		
 		masterMbeanServer = ManagementFactory.getPlatformMBeanServer();
 		DynamicMBeanMirrorFactory.setMBeanMasterServer(masterMbeanServer);

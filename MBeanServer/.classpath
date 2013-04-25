@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry exported="true" kind="lib" path="/home/gestv/lib/asm-3.3.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/gestv/lib/jersey-client-1.17.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/gestv/lib/jersey-core-1.17.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/gestv/lib/jersey-server-1.17.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/gestv/lib/simple-xml-2.6.9.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/gestv/lib/mongo-java-driver-2.11.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="/home/gestv/lib/http-20070405.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

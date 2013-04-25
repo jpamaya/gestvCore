@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="/home/gestv/Descargas/jersey-server-1.17.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/home/gestv/git/gestv/MbeanHelper/WebContent/WEB-INF/lib/jersey-bundle-1.16.jar"/>
+	<classpathentry kind="lib" path="/home/gestv/Descargas/mongo-java-driver-2.11.1.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

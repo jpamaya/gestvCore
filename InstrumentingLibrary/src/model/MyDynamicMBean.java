@@ -193,10 +193,11 @@ public class MyDynamicMBean implements DynamicMBean, NotificationEmitter{
             Properties props = new Properties();
             props.setProperty("attribute", attribute.getName());
             props.setProperty("value", changeTypeToString(attribute.getValue()));
+            props.setProperty("domain", getDomain());
+            props.setProperty("type", getType());
+            props.setProperty("name", getName());
             notification.setUserData(props);
             try {
-            	System.out.println("not="+notification);
-            	System.out.println("lis="+listener);
 				listener.handleNotification(notification, new ObjectName(getDomain() + ":type=" + getType()+",name="+getName()));
 			} catch (MalformedObjectNameException e) {
 				e.printStackTrace();
