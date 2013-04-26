@@ -74,6 +74,9 @@ public class MBeanServerMaster {
 	public void menu(){
 		String ip,port,domain,type,name;
 		Scanner scanner = new Scanner(System.in);
+		DynamicMBeanMirrorFactory.register("192.168.119.35", "10001", "broadcaster", "Webservices", "ga1");
+		DynamicMBeanMirrorFactory.removeAll(MBSAConnections.searchConnection("192.168.119.35", "10001"));
+		
 		while (true) {
 			System.out.println("1. Registrar MBeanServer");
 			System.out.println("2. Remover MBeanServer");
@@ -109,11 +112,6 @@ public class MBeanServerMaster {
 				domain=scanner.nextLine();
 				MBSAConnection connection=MBSAConnections.searchConnection(ip, port);
 				if(connection!=null){
-					try {
-						connection.getConn().removeConnectionNotificationListener(DynamicMBeanMirrorFactory.listener);
-					} catch (ListenerNotFoundException e) {
-						e.printStackTrace();
-					}
 					DynamicMBeanMirrorFactory.removeAll(connection);
 					System.out.println("Removida la conexión a la dirección "+ip+":"+port);
 				}else
