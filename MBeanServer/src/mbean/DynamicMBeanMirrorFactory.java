@@ -65,40 +65,40 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
     	masterMbeanServer=mbServer;
     }
     
-	public static void register(String dirip, String port, String domain, String type, String name){
+	public static void register(String dirip, String port, String domain, String type){
 		MBSAConnection connection=MBSAConnections.searchConnection(dirip, port);
 		if(connection==null){
-			connection = new MBSAConnection(dirip, port, domain);
+			connection = new MBSAConnection(dirip, port, domain, type);
 			connection.connect();
 			if(connection.getConn()!=null){
 				MBSAConnections.add(connection);
-				importAll(connection, type, name);				
+				importAll(connection);				
 			}
 		}else{
 			System.out.println("Ya existe una conexión en la dirección "+dirip+":"+port);
 			connection.connect();
 			if(connection.getConn()!=null){
-				importAll(connection, type, name);				
+				importAll(connection);				
 			}
 		}
 	}
 	
-	private static void importAll(MBSAConnection connection, String type, String nom){ 
+	private static void importAll(MBSAConnection connection){
 		
 		if(connection.getConn()!=null){
-	        Set<ObjectName> names = connection.queryMbeanDomain(type, nom);
+	        Set<ObjectName> names = connection.queryMbeanDomain();
 			ObjectName mirrorName = null;
 	        for (ObjectName name : names) {
 	            try {
 	                mirrorName = new ObjectName(""+name);
+	                //Cambiar a consulta de mcr_atrs en la db
+	                //if(!mirrorName.toString().equals("JMImplementation:type=MBeanServerDelegate")){
 	                MyDynamicMBeanMirror mirror = DynamicMBeanMirrorFactory.newMBeanMirror(connection.getAgentMbeanServer(), name);
-	                if(!mirrorName.toString().equals("JMImplementation:type=MBeanServerDelegate")){
-		                masterMbeanServer.registerMBean(mirror, mirrorName);
-		                //masterMbeanServer.addNotificationListener(name, attlist, null, null);
-		                mirror.addNotificationListener(attlist, null, null);
-		            	System.out.println("MBean "+mirrorName+" registrado.");
-		            	loadMonitors(connection.getDomain(), type, nom);
-	                }
+	                masterMbeanServer.registerMBean(mirror, mirrorName);
+	                mirror.addNotificationListener(attlist, null, null);
+	            	System.out.println("MBean "+mirrorName+" registrado.");
+	            	loadMonitors(connection);
+	                //}
 	            } catch (IllegalArgumentException e) {
 	            	System.out.println("El MBeanServerAgent \""+mirrorName+"\" no presenta interfaz de notificaciones");
 	            } catch (InstanceAlreadyExistsException e) {
@@ -125,9 +125,9 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 		Set<ObjectName> names = connection.getMbeanNames();
         for (ObjectName name : names) {
             try {
-            	if(!name.toString().equals("JMImplementation:type=MBeanServerDelegate"))
-            		unloadMonitors(connection.getDomain());
-            		masterMbeanServer.unregisterMBean(name);
+            	//if(!name.toString().equals("JMImplementation:type=MBeanServerDelegate"))
+        		unloadMonitors(connection);
+        		masterMbeanServer.unregisterMBean(name);
 
             } catch (IllegalArgumentException e) {
             	System.out.println("El MBean \""+name+"\" no presenta interfaz de notificaciones");
@@ -146,7 +146,7 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
         for (ObjectName name : names) {
             try {
             	if(!name.toString().equals("JMImplementation:type=MBeanServerDelegate"))
-            		unloadMonitors(connection.getDomain());
+            		unloadMonitors(connection);
             		masterMbeanServer.unregisterMBean(name);
 
             } catch (IllegalArgumentException e) {
@@ -235,7 +235,6 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 	
 	public static String getMRInfo(String domain, String type){
 		String retorno="Error";
-		
 		return retorno;
 	}
 	
@@ -277,7 +276,9 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 		return retorno;
 	}
 	
-	public static void loadMonitors(String domain, String type, String name){
+	public static void loadMonitors(MBSAConnection connection){
+		
+		//Cargar monitores de la db
 		Monitors ms = new Monitors();
 		MyCounterMonitor cm1=new MyCounterMonitor();
 		cm1.setAttribute("perfil");
@@ -299,35 +300,39 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 		ms.counterMonitors.add(cm1);
 		ms.gaugeMonitors.add(gm1);
 		
-		for (MyMonitor mm : ms.getMonitors()) {
-			Monitor m = mm.getMonitor();
-			String oname = "QoSMonitors:type="+domain+",grupo="+type+",attribute="+m.getObservedAttribute();
-			try {
-				m.addObservedObject(new ObjectName(domain + ":type=" + type + ",name=" + name));
-				masterMbeanServer.registerMBean(m, new ObjectName(oname));
-			} catch (InstanceAlreadyExistsException e) {
-				e.printStackTrace();
-			} catch (MBeanRegistrationException e) {
-				e.printStackTrace();
-			} catch (NotCompliantMBeanException e) {
-				e.printStackTrace();
-			} catch (MalformedObjectNameException e) {
-				e.printStackTrace();
+		Set<ObjectName> names = connection.queryMbeanDomain();
+        for (ObjectName name : names) {
+        	String nom=name.getKeyProperty("name");
+			for (MyMonitor mm : ms.getMonitors()) {
+				Monitor m = mm.getMonitor();
+				String moname = "QoSMonitors:type="+connection.getDomain()+",resource="+connection.getType()+",macroatr="+nom+",attribute="+m.getObservedAttribute();
+				try {
+					m.addObservedObject(name);
+					masterMbeanServer.registerMBean(m, new ObjectName(moname));
+				} catch (InstanceAlreadyExistsException e) {
+					e.printStackTrace();
+				} catch (MBeanRegistrationException e) {
+					e.printStackTrace();
+				} catch (NotCompliantMBeanException e) {
+					e.printStackTrace();
+				} catch (MalformedObjectNameException e) {
+					e.printStackTrace();
+				}
+		        try {
+		        	m.addNotificationListener(monlist, null, null);
+		        } catch (Exception e) {
+		            e.printStackTrace();
+		        }
+				monitors.add(m);
+				m.start();
 			}
-	        try {
-	        	m.addNotificationListener(monlist, null, null);
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	        }
-			monitors.add(m);
-			m.start();
-		}
+        }
 	}
 	
-	public static void unloadMonitors(String domain){
+	public static void unloadMonitors(MBSAConnection connection){
 		Set<?> dynamicData;
 		try {
-			dynamicData = masterMbeanServer.queryMBeans(new ObjectName(domain+":*"), null);
+			dynamicData = masterMbeanServer.queryMBeans(new ObjectName(connection.getDomain()+":type="+connection.getType()+",*"), null);
 			for (Iterator<?> it = dynamicData.iterator(); it.hasNext();) {
 				ObjectInstance oi = (ObjectInstance) it.next();
 				ObjectName oName = oi.getObjectName();
@@ -343,7 +348,7 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 				System.out.println("removido monitor "+oName.toString());
 			}
 			
-			dynamicData = masterMbeanServer.queryMBeans(new ObjectName("QoSMonitors:type="+domain+",*"), null);
+			dynamicData = masterMbeanServer.queryMBeans(new ObjectName("QoSMonitors:type="+connection.getDomain()+",resource="+connection.getType()+",*"), null);
 			for (Iterator<?> it = dynamicData.iterator(); it.hasNext();) {
 				ObjectInstance oi = (ObjectInstance) it.next();
 				ObjectName oName = oi.getObjectName();

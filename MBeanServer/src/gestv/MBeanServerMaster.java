@@ -46,14 +46,14 @@ public class MBeanServerMaster {
 			//BasicDBObject doc = new BasicDBObject("atr_id", "1").append("value", "1000").append("tstamp", objid.getTime());
 			//mdbc.insert_doc(doc);
 			
-			DBCursor cursor = mdbc.getAllDocs();
+			/*DBCursor cursor = mdbc.getAllDocs();
 			try {
 			   while(cursor.hasNext()) {
 			       System.out.println(cursor.next());
 			   }
 			} finally {
 			   cursor.close();
-			}
+			}*/
 
 		} catch (UnknownHostException e1) {
 			e1.printStackTrace();
@@ -72,9 +72,9 @@ public class MBeanServerMaster {
 	}
 	
 	public void menu(){
-		String ip,port,domain,type,name;
+		String ip,port,domain,type;
 		Scanner scanner = new Scanner(System.in);
-		DynamicMBeanMirrorFactory.register("192.168.119.35", "10001", "broadcaster", "Webservices", "ga1");
+		DynamicMBeanMirrorFactory.register("192.168.119.35", "10001", "broadcaster", "Webservices");
 		DynamicMBeanMirrorFactory.removeAll(MBSAConnections.searchConnection("192.168.119.35", "10001"));
 		
 		while (true) {
@@ -97,9 +97,7 @@ public class MBeanServerMaster {
 				domain=scanner.nextLine();
 				System.out.println("type=");
 				type=scanner.nextLine();
-				System.out.println("name=");
-				name=scanner.nextLine();
-				DynamicMBeanMirrorFactory.register(ip, port, domain, type, name);
+				DynamicMBeanMirrorFactory.register(ip, port, domain, type);
 				break;
 			case 2:
 				System.out.println("Removiendo MbeanServer");
@@ -108,8 +106,6 @@ public class MBeanServerMaster {
 				ip=scanner.nextLine();
 				System.out.println("port=");
 				port=scanner.nextLine();
-				System.out.println("domain=");
-				domain=scanner.nextLine();
 				MBSAConnection connection=MBSAConnections.searchConnection(ip, port);
 				if(connection!=null){
 					DynamicMBeanMirrorFactory.removeAll(connection);

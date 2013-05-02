@@ -20,13 +20,15 @@ public class MBSAConnection {
 	private String dirip;
 	private String port;
 	private String domain;
+	private String type;
 	private Set<ObjectName> mbeanNames = null;
 	private Set<ObjectName> mbeanServices = null;
 	
-	public MBSAConnection(String dirip, String port, String domain) {
+	public MBSAConnection(String dirip, String port, String domain, String type) {
 		this.dirip=dirip;
 		this.port=port;
 		this.setDomain(domain);
+		this.setType(type);
 		try {
 			this.url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + dirip + ":"+port+"/jmxrmi");
 		} catch (MalformedURLException e) {
@@ -34,10 +36,10 @@ public class MBSAConnection {
 		}
 	}
 	
-	public Set<ObjectName> queryMbeanDomain(String type, String name){
+	public Set<ObjectName> queryMbeanDomain(){
 		Set<ObjectName> names = null;
 		try {
-			names = agentMbeanServer.queryNames(new ObjectName(domain+":type="+type+",name="+name),null);
+			names = agentMbeanServer.queryNames(new ObjectName(domain+":type="+type+",*"),null);
 			setMbeanNames(names);
 		} catch (MalformedObjectNameException e1) {
 			e1.printStackTrace();
@@ -47,7 +49,7 @@ public class MBSAConnection {
 		return names;
 	}
 	
-	public Set<ObjectName> queryMbeanServices(String key){
+	/*public Set<ObjectName> queryMbeanServices(String key){
 		Set<ObjectName> names = null;
 		try {
 			names = agentMbeanServer.queryNames(new ObjectName(key+":*"),null);
@@ -58,7 +60,7 @@ public class MBSAConnection {
 			e.printStackTrace();
 		}
 		return names;
-	}
+	}*/
 
 	public MBeanServerConnection connect(){
 		try {
@@ -122,5 +124,13 @@ public class MBSAConnection {
 
 	public void setDomain(String domain) {
 		this.domain = domain;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 }

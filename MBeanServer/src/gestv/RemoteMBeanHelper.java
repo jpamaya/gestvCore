@@ -20,18 +20,17 @@ import mbean.DynamicMBeanMirrorFactory;
 public class RemoteMBeanHelper {
 
 	// Registra un MR para su gestion
-	//curl -d "ip=192.168.119.35&port=10001&domain=broadcaster&type=Webservices&name=ga1" http://192.168.119.35:9999/mbs/register
+	//curl -d "ip=192.168.119.35&port=10001&domain=broadcaster&type=Webservices" http://192.168.119.35:9999/mbs/register
 	@POST
 	@Path("/register")
 	@Produces(MediaType.TEXT_PLAIN)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	public String register(
-			@FormParam("domain") String domain, 
-			@FormParam("name") String name,
-			@FormParam("type") String type,
 			@FormParam("ip") String ip,
-			@FormParam("port") String port) {
-		DynamicMBeanMirrorFactory.register(ip, port, domain, type, name);
+			@FormParam("port") String port,
+			@FormParam("domain") String domain, 
+			@FormParam("type") String type) {
+		DynamicMBeanMirrorFactory.register(ip, port, domain, type);
 		return "";
 	}
 
@@ -42,9 +41,6 @@ public class RemoteMBeanHelper {
 	@Produces(MediaType.TEXT_PLAIN)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	public String remove(
-			@PathParam("domain") String domain,
-			@PathParam("name") String name,
-			@PathParam("type") String type,
 			@FormParam("ip") String ip,
 			@FormParam("port") String port){
 		DynamicMBeanMirrorFactory.removeAll(ip, port);
