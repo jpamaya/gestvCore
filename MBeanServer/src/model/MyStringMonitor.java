@@ -19,6 +19,7 @@ public class MyStringMonitor implements MyMonitor{
 	private String compareValue;
 	@Attribute
 	private String name;
+	private String type;
 	
 	public MyStringMonitor() {
 
@@ -67,5 +68,15 @@ public class MyStringMonitor implements MyMonitor{
 
 	public Monitor getMonitor() {
 		return getStringMonitor();
+	}
+
+	@Override
+	public String getType() {
+		return type;
+	}
+
+	@Override
+	public void setType(String type) {
+		this.type=type;
 	}
 }

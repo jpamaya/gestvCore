@@ -27,6 +27,7 @@ public class MyGaugeMonitor implements MyMonitor {
 	private boolean notifyHigh;	
 	@Element
 	private boolean notifyLow;	
+	private String type;
 	
 	public MyGaugeMonitor() {
 
@@ -104,6 +105,16 @@ public class MyGaugeMonitor implements MyMonitor {
 
 	public void setNotifyLow(boolean notifyLow) {
 		this.notifyLow = notifyLow;
+	}
+
+	@Override
+	public String getType() {
+		return type;
+	}
+
+	@Override
+	public void setType(String type) {
+		this.type=type;
 	}
 
 }

@@ -53,8 +53,7 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 	private static RemoteMessageListener attlist = new RemoteMessageListener();
     public static RemoteMonitorListener monlist = new RemoteMonitorListener();
     private static List<Monitor> monitors = new ArrayList<Monitor>();
-    
-    //private static List<Monitor> monitors = new ArrayList<Monitor>();
+    private static List<MyMonitor> mymonitors = new ArrayList<MyMonitor>();
 
     public static MyDynamicMBeanMirror newMBeanMirror( MBeanServerConnection mbsc, ObjectName objectName) throws IOException, InstanceNotFoundException, IntrospectionException {
     	MyDynamicMBeanMirror mirror = new MyDynamicMBeanMirror(mbsc, objectName);
@@ -246,7 +245,83 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 	
 	public static String setMonitor(String domain, String type, String name, String attribute, String monitor, String value){
 		String retorno="Error";
+		Set<?> dynamicData = null;
+		String mon="";
+
+		if(monitor.equals("qos"))
+			mon="QoSMonitors";
+		else
+			mon="AlrMonitors";
 		
+		try {
+			dynamicData = masterMbeanServer.queryMBeans(new ObjectName(mon+":type="+domain+",resource="+type+",macroatr="+name+",attribute="+attribute), null);
+		} catch (MalformedObjectNameException e1) {
+			e1.printStackTrace();
+		} catch (NullPointerException e1) {
+			e1.printStackTrace();
+		}
+		
+		System.out.println(value);
+		System.out.println(monitor);
+		System.out.println(dynamicData.size());
+		
+		if(value.equals("on") && dynamicData.size()==0){
+			retorno="OK";
+			try {
+				MyCounterMonitor cm1=new MyCounterMonitor();
+				cm1.setAttribute("perfil");
+				cm1.setOffset(0);
+				cm1.setThreshold(15);
+				cm1.setPeriod(1000L);
+				MyMonitor mm = cm1;
+				Monitor m = mm.getMonitor();
+				String moname = mon+":type="+domain+",resource="+type+",macroatr="+name+",attribute="+attribute;
+				try {
+					m.addObservedObject(new ObjectName(domain+":type="+type+",name="+name));
+					masterMbeanServer.registerMBean(m, new ObjectName(moname));
+				} catch (InstanceAlreadyExistsException e) {
+					e.printStackTrace();
+				} catch (MBeanRegistrationException e) {
+					e.printStackTrace();
+				} catch (NotCompliantMBeanException e) {
+					e.printStackTrace();
+				} catch (MalformedObjectNameException e) {
+					e.printStackTrace();
+				}
+		        try {
+		        	m.addNotificationListener(monlist, null, null);
+		        } catch (Exception e) {
+		            e.printStackTrace();
+		        }
+				mymonitors.add(mm);
+				m.start();
+				System.out.println("on monitor "+moname);
+			} catch (NullPointerException e) {
+				e.printStackTrace();
+			}
+		}else if(value.equals("off") && dynamicData.size()==1){
+			for (Iterator<?> it = dynamicData.iterator(); it.hasNext();) {
+				ObjectInstance oi = (ObjectInstance) it.next();
+				ObjectName oName = oi.getObjectName();
+				MyMonitor m = null;
+				for (int i=0;i<mymonitors.size(); i++) {
+					if(((MyMonitor)mymonitors.get(i)).getName().equals(""+oName)){
+						m=(MyMonitor)mymonitors.get(i);
+						break;
+					}
+				}
+				m.getMonitor().stop();
+				mymonitors.remove(m);
+				try {
+					masterMbeanServer.unregisterMBean(oName);
+				} catch (MBeanRegistrationException e) {
+					e.printStackTrace();
+				} catch (InstanceNotFoundException e) {
+					e.printStackTrace();
+				}
+				System.out.println("off monitor "+oName.toString());
+			}
+		}
 		return retorno;
 	}
 	
@@ -282,14 +357,12 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 		Monitors ms = new Monitors();
 		MyCounterMonitor cm1=new MyCounterMonitor();
 		cm1.setAttribute("perfil");
-		cm1.setName("cm1");
-		cm1.setOffset((double) 1);
+		cm1.setOffset(0);
 		cm1.setThreshold(5);
 		cm1.setPeriod(1000L);
 		
 		MyGaugeMonitor gm1= new MyGaugeMonitor();
 		gm1.setAttribute("perfilTime");
-		gm1.setName("gm1");
 		gm1.setNotifyHigh(true);
 		gm1.setNotifyLow(true);
 		gm1.setPeriod(1000L);
@@ -306,6 +379,7 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 			for (MyMonitor mm : ms.getMonitors()) {
 				Monitor m = mm.getMonitor();
 				String moname = "QoSMonitors:type="+connection.getDomain()+",resource="+connection.getType()+",macroatr="+nom+",attribute="+m.getObservedAttribute();
+				mm.setName(moname);
 				try {
 					m.addObservedObject(name);
 					masterMbeanServer.registerMBean(m, new ObjectName(moname));
@@ -323,7 +397,7 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 		        } catch (Exception e) {
 		            e.printStackTrace();
 		        }
-				monitors.add(m);
+				mymonitors.add(mm);
 				m.start();
 			}
         }
@@ -332,29 +406,22 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 	public static void unloadMonitors(MBSAConnection connection){
 		Set<?> dynamicData;
 		try {
-			dynamicData = masterMbeanServer.queryMBeans(new ObjectName(connection.getDomain()+":type="+connection.getType()+",*"), null);
-			for (Iterator<?> it = dynamicData.iterator(); it.hasNext();) {
-				ObjectInstance oi = (ObjectInstance) it.next();
-				ObjectName oName = oi.getObjectName();
-				Monitor m = null;
-				for (int i=0;i<monitors.size(); i++) {
-					if(((Monitor)monitors.get(i)).containsObservedObject(oName)){
-						m=(Monitor)monitors.get(i);
-						break;
-					}
-				}
-				m.stop();
-				monitors.remove(m);
-				System.out.println("removido monitor "+oName.toString());
-			}
-			
 			dynamicData = masterMbeanServer.queryMBeans(new ObjectName("QoSMonitors:type="+connection.getDomain()+",resource="+connection.getType()+",*"), null);
 			for (Iterator<?> it = dynamicData.iterator(); it.hasNext();) {
 				ObjectInstance oi = (ObjectInstance) it.next();
 				ObjectName oName = oi.getObjectName();
+				MyMonitor m = null;
+				for (int i=0;i<mymonitors.size(); i++) {
+					if(((MyMonitor)mymonitors.get(i)).getName().equals(""+oName)){
+						m=(MyMonitor)mymonitors.get(i);
+						break;
+					}
+				}
+				m.getMonitor().stop();
+				System.out.println("removido monitor "+m.getName());
+				mymonitors.remove(m);
 				try {
 					masterMbeanServer.unregisterMBean(oName);
-					System.out.println("removido mbean "+oName.toString());
 				} catch (MBeanRegistrationException e) {
 					e.printStackTrace();
 				} catch (InstanceNotFoundException e) {

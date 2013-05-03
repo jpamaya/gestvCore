@@ -115,16 +115,17 @@ public class RemoteMBeanHelper {
 	
 	// Cambia el estado de un monitor dado
 	@PUT
-	@Path("/{domain}/{type}/{name}/{attribute}/{monitor}")
+	@Path("/{domain}/{type}/{name}/{attribute}/{monitor}/{value}")
 	  @Produces(MediaType.TEXT_PLAIN)
 	  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	  public String setAttribute(
+	  public String setMonitor(
 			  @PathParam("domain") String domain,
+			  @PathParam("type") String type,
 			  @PathParam("name") String name,
-			  @PathParam("type") String type, 
-			  @PathParam("attribute") String attribute,
-			  @PathParam("monitor") String monitor,			  
-			  @FormParam("value") String value) {
+ 			  @PathParam("attribute") String attribute,
+			  @PathParam("monitor") String monitor,
+			  @PathParam("value") String value) {
+		System.out.println("setMonitor");
 	    return DynamicMBeanMirrorFactory.setMonitor(domain, name, type, attribute, monitor, value);
 	  }
 }

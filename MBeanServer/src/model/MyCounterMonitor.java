@@ -18,9 +18,10 @@ public class MyCounterMonitor implements MyMonitor {
 	@Element
 	private Integer threshold;
 	@Element
-	private Double offset;
+	private Integer offset;
 	@Attribute
 	private String name;
+	private String type;
 	
 	public MyCounterMonitor() {
 
@@ -42,10 +43,10 @@ public class MyCounterMonitor implements MyMonitor {
 	public void setThreshold(Integer threshold) {
 		this.threshold = threshold;
 	}
-	public Double getOffset() {
+	public Integer getOffset() {
 		return offset;
 	}
-	public void setOffset(Double offset) {
+	public void setOffset(Integer offset) {
 		this.offset = offset;
 	}
 	
@@ -57,6 +58,7 @@ public class MyCounterMonitor implements MyMonitor {
 		cm.setInitThreshold(getThreshold());
 		cm.setNotify(true);
 		cm.setOffset(getOffset());
+		cm.setModulus(5);
 		return cm;
 	}
 
@@ -74,5 +76,15 @@ public class MyCounterMonitor implements MyMonitor {
 
 	public Monitor getMonitor() {
 		return getCounterMonitor();
+	}
+
+	@Override
+	public String getType() {
+		return type;
+	}
+
+	@Override
+	public void setType(String type) {
+		this.type=type;
 	}
 }
