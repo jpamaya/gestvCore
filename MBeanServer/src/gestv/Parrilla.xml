@@ -1,0 +1,28 @@
+<mcr-atrs>
+	<mcr-atr>
+	   <desc>Property Manager MBean</desc>
+	    <name>ga1</name>
+	    <ref-prot/>
+	    <type>simple</type>
+	   <atrs>
+	      <atr>
+	      	<desc>Se encuentra en emisión o no.</desc>
+	        <name>playing</name>
+	        <rdbl>true</rdbl>
+	        <ref-prot/>
+	        <type>Boolean</type>
+	        <value>false</value>
+	        <wtbl>false</wtbl>
+	      </atr>
+	      <atr>
+	      	<desc>Fecha y hora de inicio del servicio.</desc>
+	        <name>uptime</name>
+	        <rdbl>true</rdbl>
+	        <ref-prot/>
+	        <type>String</type>
+	        <value/>
+	        <wtbl>false</wtbl>
+	      </atr>
+		</atrs>
+	</mcr-atr>	      
+</mcr-atrs>

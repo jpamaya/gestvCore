@@ -23,6 +23,10 @@ public class MongoDBConnection {
 		db = mc.getDB("webgestv_development");
 	}
 	
+	public DB getDb(){
+		return db;
+	}
+	
 	public void setColl(String collection){
 		coll = db.getCollection(collection);
 	}

@@ -96,7 +96,7 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 	                masterMbeanServer.registerMBean(mirror, mirrorName);
 	                mirror.addNotificationListener(attlist, null, null);
 	            	System.out.println("MBean "+mirrorName+" registrado.");
-	            	loadMonitors(connection);
+	            	//loadMonitors(connection);
 	                //}
 	            } catch (IllegalArgumentException e) {
 	            	System.out.println("El MBeanServerAgent \""+mirrorName+"\" no presenta interfaz de notificaciones");

@@ -10,7 +10,11 @@ import java.util.logging.Logger;
 import javax.management.ListenerNotFoundException;
 import javax.management.MBeanServer;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 import com.sun.jersey.api.container.httpserver.HttpServerFactory;
 import com.sun.net.httpserver.HttpServer;
 import mbean.DynamicMBeanMirrorFactory;
@@ -41,7 +45,7 @@ public class MBeanServerMaster {
 			    System.out.println(s);
 			}
 			
-			mdbc.setColl("atr_hst");
+			//mdbc.setColl("atr_hst");
 			//ObjectId objid = new ObjectId(); 
 			//BasicDBObject doc = new BasicDBObject("atr_id", "1").append("value", "1000").append("tstamp", objid.getTime());
 			//mdbc.insert_doc(doc);
@@ -68,16 +72,42 @@ public class MBeanServerMaster {
         } catch (IOException e) {
             e.printStackTrace();
         }
+		connDaemon();
 		menu();
+		//server.stop(0);
+        //System.exit(0);
 	}
 	
+	private void connDaemon() {
+		try {
+			MongoDBConnection mdbc = MongoDBConnection.getInstance();
+			DB db = mdbc.getDb();
+			DBCollection coll = db.getCollection("man_rscs");
+			BasicDBObject query = new BasicDBObject("_type", "Serv");
+			
+			DBCursor cursor = coll.find(query);
+			DBObject obj,obj1;
+			try {
+			   while(cursor.hasNext()) {
+				   obj=cursor.next();
+				   obj1=(DBObject) obj.get("conn");
+			       DynamicMBeanMirrorFactory.register((String)obj1.get("ip"), Integer.toString((Integer) obj1.get("port")), (String)obj.get("domain"), (String)obj.get("name"));
+			   }
+			} finally {
+			   cursor.close();
+			}
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void menu(){
 		String ip,port,domain,type;
 		Scanner scanner = new Scanner(System.in);
 		DynamicMBeanMirrorFactory.register("192.168.119.35", "10001", "broadcaster", "Webservices");
 		//DynamicMBeanMirrorFactory.removeAll(MBSAConnections.searchConnection("192.168.119.35", "10001"));
-		DynamicMBeanMirrorFactory.setMonitor("broadcaster", "Webservices", "ga1", "perfil", "qos", "off");
-		DynamicMBeanMirrorFactory.setMonitor("broadcaster", "Webservices", "ga1", "perfil", "qos", "on");
+		//DynamicMBeanMirrorFactory.setMonitor("broadcaster", "Webservices", "ga1", "perfil", "qos", "off");
+		//DynamicMBeanMirrorFactory.setMonitor("broadcaster", "Webservices", "ga1", "perfil", "qos", "on");
 		while (true) {
 			System.out.println("1. Registrar MBeanServer");
 			System.out.println("2. Remover MBeanServer");
