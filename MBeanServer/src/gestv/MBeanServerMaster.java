@@ -7,7 +7,6 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.management.ListenerNotFoundException;
 import javax.management.MBeanServer;
 
 import com.mongodb.BasicDBObject;
@@ -62,8 +61,6 @@ public class MBeanServerMaster {
 		} catch (UnknownHostException e1) {
 			e1.printStackTrace();
 		}
-		
-		//createLocalMBean();
 		try {
             server = HttpServerFactory.create(BASE_URI);
             server.start();
@@ -104,7 +101,7 @@ public class MBeanServerMaster {
 	public void menu(){
 		String ip,port,domain,type;
 		Scanner scanner = new Scanner(System.in);
-		DynamicMBeanMirrorFactory.register("192.168.119.35", "10001", "broadcaster", "Webservices");
+		//DynamicMBeanMirrorFactory.register("192.168.119.35", "10001", "broadcaster", "Webservices");
 		//DynamicMBeanMirrorFactory.removeAll(MBSAConnections.searchConnection("192.168.119.35", "10001"));
 		//DynamicMBeanMirrorFactory.setMonitor("broadcaster", "Webservices", "ga1", "perfil", "qos", "off");
 		//DynamicMBeanMirrorFactory.setMonitor("broadcaster", "Webservices", "ga1", "perfil", "qos", "on");

@@ -7,7 +7,7 @@ import javax.management.remote.JMXConnector;
 
 public class MBSAConnections {
 
-	private static List<MBSAConnection> connections = new ArrayList<MBSAConnection>();
+	public static List<MBSAConnection> connections = new ArrayList<MBSAConnection>();
 
 	public static void add(MBSAConnection connection) {
 		connections.add(connection);
