@@ -1,8 +1,10 @@
 package mbean;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -31,11 +33,21 @@ import javax.management.monitor.Monitor;
 import javax.management.remote.JMXConnectionNotification;
 import javax.management.remote.JMXConnector;
 
+import org.bson.types.ObjectId;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+
+import model.MongoDBConnection;
 import model.Monitors;
 import model.MyCounterMonitor;
 import model.MyDynamicMBeanMirror;
 import model.MyGaugeMonitor;
 import model.MyMonitor;
+import model.MyThresholdMonitor;
 //import model.MyStringMonitor;
 import mbean.RemoteMessageListener;
 
@@ -73,17 +85,52 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 	private static void importAll(MBSAConnection connection){
 		
 		if(connection.getConn()!=null){
-	        Set<ObjectName> names = connection.queryMbeanDomain();
+			Set<DBObject> mcratrs = new HashSet<DBObject>();
+			try {
+				MongoDBConnection mdbc = MongoDBConnection.getInstance();
+				DB db = mdbc.getDb();
+				DBCollection coll;
+				BasicDBObject query1,query2;
+				DBCursor cursor1,cursor2;
+				DBObject obj,obj1;
+				
+				coll = db.getCollection("man_rscs");
+				query1 = new BasicDBObject("name", connection.getType()).append("domain", connection.getDomain());
+				cursor1 = coll.find(query1);
+
+				try {
+				   while(cursor1.hasNext()) {
+					   obj=cursor1.next();
+					   coll = db.getCollection("mcr_atrs");
+					   query2 = new BasicDBObject("man_rsc_id", obj.get("_id"));
+					   cursor2 = coll.find(query2);
+					   try {
+						   while(cursor2.hasNext()) {
+							   obj1=cursor2.next();
+							   mcratrs.add(obj1);
+						   }
+						} finally {
+						   cursor2.close();
+						}
+				   }
+				} finally {
+				   cursor1.close();
+				}
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			}
+			
 			ObjectName mirrorName = null;
-	        for (ObjectName name : names) {
+			ObjectName name = null;
+	        for (DBObject objma : mcratrs) {
 	            try {
-	                mirrorName = new ObjectName(""+name);
-	                //Cambiar a consulta de mcr_atrs en la db
+	            	name = new ObjectName(connection.getDomain()+":type="+connection.getType()+",name="+objma.get("name"));
+	                mirrorName = name;
 	                MyDynamicMBeanMirror mirror = DynamicMBeanMirrorFactory.newMBeanMirror(connection.getAgentMbeanServer(), name);
 	                masterMbeanServer.registerMBean(mirror, mirrorName);
 	                mirror.addNotificationListener(attlist, null, null);
 	            	System.out.println("MBean "+mirrorName+" registrado.");
-	            	loadMonitors(connection);
+	            	loadMonitors(connection, objma);
 	            } catch (IllegalArgumentException e) {
 	            	System.out.println("El MBeanServerAgent \""+mirrorName+"\" no presenta interfaz de notificaciones");
 	            } catch (InstanceAlreadyExistsException e) {
@@ -235,8 +282,31 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 		else
 			mon="AlrMonitors";
 		
+		DBObject obj = null,obj1;		
 		try {
-			dynamicData = masterMbeanServer.queryMBeans(new ObjectName(mon+":type="+domain+",resource="+type+",macroatr="+name+",attribute="+attribute), null);
+			MongoDBConnection mdbc = MongoDBConnection.getInstance();
+			DB db = mdbc.getDb();
+			DBCollection coll;
+			BasicDBObject query1;
+			DBCursor cursor1;
+			
+			coll = db.getCollection("atrs");
+			query1 = new BasicDBObject("_id", new ObjectId(attribute));
+			cursor1 = coll.find(query1);
+
+			try {
+			   while(cursor1.hasNext()) {
+				   obj=cursor1.next();
+			   }
+			} finally {
+			   cursor1.close();
+			}
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			dynamicData = masterMbeanServer.queryMBeans(new ObjectName(mon+":type="+domain+",resource="+type+",macroatr="+name+",attribute="+obj.get("name")), null);
 		} catch (MalformedObjectNameException e1) {
 			e1.printStackTrace();
 		} catch (NullPointerException e1) {
@@ -250,34 +320,18 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 		if(value.equals("on") && dynamicData.size()==0){
 			retorno="OK";
 			try {
-				MyCounterMonitor cm1=new MyCounterMonitor();
-				cm1.setAttribute("perfil");
-				cm1.setOffset(0);
-				cm1.setThreshold(15);
-				cm1.setPeriod(1000L);
-				MyMonitor mm = cm1;
-				Monitor m = mm.getMonitor();
-				String moname = mon+":type="+domain+",resource="+type+",macroatr="+name+",attribute="+attribute;
-				try {
-					m.addObservedObject(new ObjectName(domain+":type="+type+",name="+name));
-					masterMbeanServer.registerMBean(m, new ObjectName(moname));
-				} catch (InstanceAlreadyExistsException e) {
-					e.printStackTrace();
-				} catch (MBeanRegistrationException e) {
-					e.printStackTrace();
-				} catch (NotCompliantMBeanException e) {
-					e.printStackTrace();
-				} catch (MalformedObjectNameException e) {
-					e.printStackTrace();
-				}
-		        try {
-		        	m.addNotificationListener(monlist, null, null);
-		        } catch (Exception e) {
-		            e.printStackTrace();
-		        }
-				mymonitors.add(mm);
-				m.start();
-				System.out.println("on monitor "+moname);
+				MyMonitor mm;
+				if(monitor.equals("qos"))
+					obj1=(DBObject) obj.get("qos_mon");
+				else
+					obj1=(DBObject) obj.get("alr_mon");
+				
+				if(obj1.get("_type").equals("AlrMntrCntr"))
+					mm = createCounterMonitor((String)obj.get("name"), ((Double)obj1.get("value")).intValue());
+				else
+					mm = createGaugeMonitor((String)obj.get("name"), (Double)obj1.get("value_up"), (Double)obj1.get("value_down"));
+
+				createMonitor(monitor, mm, domain, type, name);
 			} catch (NullPointerException e) {
 				e.printStackTrace();
 			}
@@ -332,56 +386,110 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 		return retorno;
 	}
 	
-	public static void loadMonitors(MBSAConnection connection){
-		
-		//Cargar monitores de la db
-		Monitors ms = new Monitors();
-		MyCounterMonitor cm1=new MyCounterMonitor();
+	public static void loadMonitors(MBSAConnection connection, DBObject objma){
+		/*MyThresholdMonitor cm1=new MyThresholdMonitor();
 		cm1.setAttribute("perfil");
-		cm1.setOffset(0);
-		cm1.setThreshold(5);
-		cm1.setPeriod(1000L);
+		cm1.setOffset((double) 0);
+		cm1.setThreshold((double) 5);
+		cm1.setPeriod(1000L);*/
+		//ms.thresholdMonitors.add(cm1);		
+
+		try {
+			MongoDBConnection mdbc = MongoDBConnection.getInstance();
+			DB db = mdbc.getDb();
+			DBCollection coll;
+			BasicDBObject query1;
+			DBCursor cursor1;
+			DBObject obj1,obj2;
+			
+		   coll = db.getCollection("atrs");
+		   query1 = new BasicDBObject("mcr_atr_id", objma.get("_id"));
+		   cursor1 = coll.find(query1);
+		   try {
+			   while(cursor1.hasNext()) {
+				   obj1=cursor1.next();
+				   try {
+						obj2=(DBObject) obj1.get("qos_mon");
+						if(obj2 != null && obj2.get("state").equals("act")){
+							MyMonitor mm;
+							if(obj2.get("_type").equals("AlrMntrCntr"))
+								mm = createCounterMonitor((String)obj1.get("name"), ((Double)obj2.get("value")).intValue());
+							else
+								mm = createGaugeMonitor((String)obj1.get("name"), (Double)obj2.get("value_up"), (Double)obj2.get("value_down"));
+							createMonitor("qos", mm, connection.getDomain(), connection.getType(), (String)objma.get("name"));
+						}
+						obj2=(DBObject) obj1.get("alr_mon");
+						if(obj2 != null && obj2.get("state").equals("act")){
+							MyMonitor mm;
+							if(obj2.get("_type").equals("AlrMntrCntr"))
+								mm = createCounterMonitor((String)obj1.get("name"), ((Double)obj2.get("value")).intValue());
+							else
+								mm = createGaugeMonitor((String)obj1.get("name"), (Double)obj2.get("value_up"), (Double)obj2.get("value_down"));
+							createMonitor("alr", mm, connection.getDomain(), connection.getType(), (String)objma.get("name"));
+						}
+					} catch (NullPointerException e) {
+						e.printStackTrace();
+					}
+			   }
+		   	} finally {
+			   cursor1.close();
+			}
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}		   
+	}
+	
+	private static void createMonitor(String tipo, MyMonitor mm, String domain, String type, String mcrName){
+		String mon="";
+		if(tipo.equals("qos"))
+			mon="QoSMonitors";
+		else
+			mon="AlrMonitors";
 		
+		Monitor m = mm.getMonitor();
+		String moname = mon+":type="+domain+",resource="+type+",macroatr="+mcrName+",attribute="+m.getObservedAttribute();
+		mm.setName(moname);
+		try {
+			m.addObservedObject(new ObjectName(domain+":type="+type+",name="+mcrName));
+			masterMbeanServer.registerMBean(m, new ObjectName(moname));
+		} catch (InstanceAlreadyExistsException e) {
+			e.printStackTrace();
+		} catch (MBeanRegistrationException e) {
+			e.printStackTrace();
+		} catch (NotCompliantMBeanException e) {
+			e.printStackTrace();
+		} catch (MalformedObjectNameException e) {
+			e.printStackTrace();
+		}
+        try {
+        	m.addNotificationListener(monlist, null, moname);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+		mymonitors.add(mm);
+		m.start();
+		System.out.println("on monitor"+moname);
+	}
+	
+	private static MyMonitor createCounterMonitor(String atr, Integer threshold){
+		MyCounterMonitor cm1=new MyCounterMonitor();
+		cm1.setAttribute(atr);
+		cm1.setOffset(0);
+		cm1.setThreshold(threshold);
+		cm1.setPeriod(1000L);
+		return cm1;
+	}
+	
+	private static MyMonitor createGaugeMonitor(String atr, Double umbralH, Double umbralL){
 		MyGaugeMonitor gm1= new MyGaugeMonitor();
-		gm1.setAttribute("perfilTime");
+		gm1.setAttribute(atr);
 		gm1.setNotifyHigh(true);
 		gm1.setNotifyLow(true);
 		gm1.setPeriod(1000L);
-		gm1.setThresholdHigh((double) 3);
-		gm1.setThresholdLow((double) 0.001);
+		gm1.setThresholdHigh(umbralH);
+		gm1.setThresholdLow(umbralL);
 		gm1.setDifference(false);
-		
-		ms.counterMonitors.add(cm1);
-		ms.gaugeMonitors.add(gm1);
-		
-		Set<ObjectName> names = connection.queryMbeanDomain();
-        for (ObjectName name : names) {
-        	String nom=name.getKeyProperty("name");
-			for (MyMonitor mm : ms.getMonitors()) {
-				Monitor m = mm.getMonitor();
-				String moname = "QoSMonitors:type="+connection.getDomain()+",resource="+connection.getType()+",macroatr="+nom+",attribute="+m.getObservedAttribute();
-				mm.setName(moname);
-				try {
-					m.addObservedObject(name);
-					masterMbeanServer.registerMBean(m, new ObjectName(moname));
-				} catch (InstanceAlreadyExistsException e) {
-					e.printStackTrace();
-				} catch (MBeanRegistrationException e) {
-					e.printStackTrace();
-				} catch (NotCompliantMBeanException e) {
-					e.printStackTrace();
-				} catch (MalformedObjectNameException e) {
-					e.printStackTrace();
-				}
-		        try {
-		        	m.addNotificationListener(monlist, null, moname);
-		        } catch (Exception e) {
-		            e.printStackTrace();
-		        }
-				mymonitors.add(mm);
-				m.start();
-			}
-        }
+		return gm1;
 	}
 	
 	public static void unloadMonitors(MBSAConnection connection){

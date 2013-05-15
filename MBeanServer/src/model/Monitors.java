@@ -15,6 +15,9 @@ public class Monitors {
 	public List<MyGaugeMonitor> gaugeMonitors = new ArrayList<MyGaugeMonitor>();
 	@ElementList(required=false)
 	public List<MyStringMonitor> stringMonitors = new ArrayList<MyStringMonitor>();
+	@ElementList(required=false)
+	public List<MyThresholdMonitor> thresholdMonitors = new ArrayList<MyThresholdMonitor>();
+	
 	
 	public List<MyMonitor> monitors = new ArrayList<MyMonitor>();
 	
@@ -40,9 +43,17 @@ public class Monitors {
 	public List<MyStringMonitor> getStringMonitors() {
 		return stringMonitors;
 	}
-
+	
 	public void setStringMonitors(List<MyStringMonitor> stringMonitors) {
 		this.stringMonitors = stringMonitors;
+	}
+	
+	public List<MyThresholdMonitor> getThresholdMonitors() {
+		return thresholdMonitors;
+	}
+
+	public void setThresholdMonitors(List<MyThresholdMonitor> thresholdMonitors) {
+		this.thresholdMonitors = thresholdMonitors;
 	}
 	
 	public List<MyMonitor> getMonitors(){
@@ -52,6 +63,8 @@ public class Monitors {
 		for (MyGaugeMonitor cm : gaugeMonitors)
 			monitors.add(cm);
 		for (MyStringMonitor cm : stringMonitors)
+			monitors.add(cm);
+		for (MyThresholdMonitor cm : thresholdMonitors)
 			monitors.add(cm);		
 		return this.monitors;
 	}
