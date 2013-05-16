@@ -103,7 +103,7 @@ public class MyDynamicMBeanMirror implements DynamicMBean, NotificationEmitter{
 
 	public void addNotificationListener(NotificationListener listener,  NotificationFilter filter, Object handback) {
         try {
-        	getMBeanServerConnection().addNotificationListener(getRemoteObjectName(), listener, filter, null);
+        	getMBeanServerConnection().addNotificationListener(getRemoteObjectName(), listener, filter, handback);
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {

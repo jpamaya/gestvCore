@@ -177,7 +177,8 @@ public class MyDynamicMBean implements DynamicMBean, NotificationEmitter{
 
 	public void addNotificationListener(NotificationListener listener, NotificationFilter filter, Object handback) throws IllegalArgumentException {
 		if (listener != null)
-            	_listeners.add(new ListenerFilterHandbackTriplet(listener, filter, null));
+            	_listeners.add(new ListenerFilterHandbackTriplet(listener, filter, handback));
+		//System.out.println("handback="+handback);
 	}
 
 	public void removeNotificationListener(NotificationListener arg0) throws ListenerNotFoundException {
@@ -197,6 +198,7 @@ public class MyDynamicMBean implements DynamicMBean, NotificationEmitter{
             props.setProperty("type", getType());
             props.setProperty("name", getName());
             notification.setUserData(props);
+            //System.out.println("handback="+triplet.toString());
             try {
 				listener.handleNotification(notification, new ObjectName(getDomain() + ":type=" + getType()+",name="+getName()));
 			} catch (MalformedObjectNameException e) {

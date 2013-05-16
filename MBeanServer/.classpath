@@ -9,5 +9,6 @@
 	<classpathentry exported="true" kind="lib" path="/home/gestv/lib/simple-xml-2.6.9.jar"/>
 	<classpathentry exported="true" kind="lib" path="/home/gestv/lib/mongo-java-driver-2.11.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="/home/gestv/lib/http-20070405.jar"/>
+	<classpathentry kind="lib" path="/home/gestv/lib/gson-2.2.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

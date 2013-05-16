@@ -103,8 +103,8 @@ public class MBeanServerMaster {
 		Scanner scanner = new Scanner(System.in);
 		//DynamicMBeanMirrorFactory.register("192.168.119.35", "10001", "broadcaster", "Webservices");
 		//DynamicMBeanMirrorFactory.removeAll(MBSAConnections.searchConnection("192.168.119.35", "10001"));
-		DynamicMBeanMirrorFactory.setMonitor("broadcaster", "Webservices", "ga1", "518bbbb58a3d1ed2aa000083", "qos", "off");
-		DynamicMBeanMirrorFactory.setMonitor("broadcaster", "Webservices", "ga1", "518bbbb58a3d1ed2aa000083", "qos", "on");
+		//DynamicMBeanMirrorFactory.setMonitor("broadcaster", "Webservices", "ga1", "518bbbb58a3d1ed2aa000083", "qos", "off");
+		//DynamicMBeanMirrorFactory.setMonitor("broadcaster", "Webservices", "ga1", "518bbbb58a3d1ed2aa000083", "qos", "on");
 		while (true) {
 			System.out.println("1. Registrar MBeanServer");
 			System.out.println("2. Remover MBeanServer");

@@ -86,13 +86,13 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 		
 		if(connection.getConn()!=null){
 			Set<DBObject> mcratrs = new HashSet<DBObject>();
+			DBObject obj = null,obj1;
 			try {
 				MongoDBConnection mdbc = MongoDBConnection.getInstance();
 				DB db = mdbc.getDb();
 				DBCollection coll;
 				BasicDBObject query1,query2;
 				DBCursor cursor1,cursor2;
-				DBObject obj,obj1;
 				
 				coll = db.getCollection("man_rscs");
 				query1 = new BasicDBObject("name", connection.getType()).append("domain", connection.getDomain());
@@ -128,7 +128,7 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 	                mirrorName = name;
 	                MyDynamicMBeanMirror mirror = DynamicMBeanMirrorFactory.newMBeanMirror(connection.getAgentMbeanServer(), name);
 	                masterMbeanServer.registerMBean(mirror, mirrorName);
-	                mirror.addNotificationListener(attlist, null, null);
+	                mirror.addNotificationListener(attlist, null, "{mrid:"+obj.get("_id")+", maid:"+objma.get("_id")+"}");
 	            	System.out.println("MBean "+mirrorName+" registrado.");
 	            	loadMonitors(connection, objma);
 	            } catch (IllegalArgumentException e) {
@@ -331,7 +331,7 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 				else
 					mm = createGaugeMonitor((String)obj.get("name"), (Double)obj1.get("value_up"), (Double)obj1.get("value_down"));
 
-				createMonitor(monitor, mm, domain, type, name);
+				createMonitor(monitor, mm, domain, type, name, new ObjectId(attribute));
 			} catch (NullPointerException e) {
 				e.printStackTrace();
 			}
@@ -416,7 +416,7 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 								mm = createCounterMonitor((String)obj1.get("name"), ((Double)obj2.get("value")).intValue());
 							else
 								mm = createGaugeMonitor((String)obj1.get("name"), (Double)obj2.get("value_up"), (Double)obj2.get("value_down"));
-							createMonitor("qos", mm, connection.getDomain(), connection.getType(), (String)objma.get("name"));
+							createMonitor("qos", mm, connection.getDomain(), connection.getType(), (String)objma.get("name"), (ObjectId)obj1.get("_id"));
 						}
 						obj2=(DBObject) obj1.get("alr_mon");
 						if(obj2 != null && obj2.get("state").equals("act")){
@@ -425,7 +425,7 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 								mm = createCounterMonitor((String)obj1.get("name"), ((Double)obj2.get("value")).intValue());
 							else
 								mm = createGaugeMonitor((String)obj1.get("name"), (Double)obj2.get("value_up"), (Double)obj2.get("value_down"));
-							createMonitor("alr", mm, connection.getDomain(), connection.getType(), (String)objma.get("name"));
+							createMonitor("alr", mm, connection.getDomain(), connection.getType(), (String)objma.get("name"), (ObjectId)obj1.get("_id"));
 						}
 					} catch (NullPointerException e) {
 						e.printStackTrace();
@@ -439,7 +439,7 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 		}		   
 	}
 	
-	private static void createMonitor(String tipo, MyMonitor mm, String domain, String type, String mcrName){
+	private static void createMonitor(String tipo, MyMonitor mm, String domain, String type, String mcrName, ObjectId atrid){
 		String mon="";
 		if(tipo.equals("qos"))
 			mon="QoSMonitors";
@@ -462,7 +462,7 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 			e.printStackTrace();
 		}
         try {
-        	m.addNotificationListener(monlist, null, moname);
+        	m.addNotificationListener(monlist, null, "{montype:"+tipo+", atrid:"+atrid+"}");
         } catch (Exception e) {
             e.printStackTrace();
         }
