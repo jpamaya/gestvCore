@@ -208,7 +208,7 @@ public class MyDynamicMBean implements DynamicMBean, NotificationEmitter{
     }
 	
 	public void sendNotification (String type, String message) {
-        Notification notification = new Notification(type, this, 0,System.currentTimeMillis(),message);    
+        Notification notification = new Notification(type, this, 0,System.currentTimeMillis(),message);
         for (int aa = 0; aa < _listeners.size(); aa++) {
             ListenerFilterHandbackTriplet triplet = (ListenerFilterHandbackTriplet)_listeners.get(aa);
             NotificationListener listener = triplet.getListener();

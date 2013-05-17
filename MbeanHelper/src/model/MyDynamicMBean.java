@@ -212,7 +212,7 @@ public class MyDynamicMBean implements DynamicMBean, NotificationEmitter{
 	        try {
 				listener.handleNotification(notification, new ObjectName(getDomain() + ":type=" + getType()+",name="+getName()));
 			} catch (MalformedObjectNameException e) {
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
         }
     }

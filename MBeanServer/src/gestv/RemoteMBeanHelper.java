@@ -35,9 +35,9 @@ public class RemoteMBeanHelper {
 	}
 
 	// Remueve el registro de un MR
-	//curl -d "ip=192.168.119.35&port=10001" -X DELETE http://192.168.119.35:9999/mbs/broadcaster/Webservices/ga1
+	//curl -d "ip=192.168.119.35&port=10001" -X DELETE http://192.168.119.35:9999/mbs/broadcaster/Webservices
 	@DELETE
-	@Path("/{domain}/{type}/{name}")
+	@Path("/{domain}/{type}")
 	@Produces(MediaType.TEXT_PLAIN)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	public String remove(
@@ -116,16 +116,31 @@ public class RemoteMBeanHelper {
 	// Cambia el estado de un monitor dado
 	@PUT
 	@Path("/{domain}/{type}/{name}/{attribute}/{monitor}/{value}")
-	  @Produces(MediaType.TEXT_PLAIN)
-	  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	  public String setMonitor(
-			  @PathParam("domain") String domain,
-			  @PathParam("type") String type,
-			  @PathParam("name") String name,
- 			  @PathParam("attribute") String attribute,
-			  @PathParam("monitor") String monitor,
-			  @PathParam("value") String value) {
-		System.out.println("setMonitor");
-	    return DynamicMBeanMirrorFactory.setMonitor(domain, name, type, attribute, monitor, value);
-	  }
+	@Produces(MediaType.TEXT_PLAIN)
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	public String setMonitor(
+			@PathParam("domain") String domain,
+			@PathParam("type") String type,
+			@PathParam("name") String name,
+ 			@PathParam("attribute") String attribute,
+			@PathParam("monitor") String monitor,
+			@PathParam("value") String value) {
+	   System.out.println("setMonitor");
+	   return DynamicMBeanMirrorFactory.setMonitor(domain, name, type, attribute, monitor, value);
+	}
+	
+	// Cambia el estado de alerta de un MR dado
+	@PUT
+	@Path("/{domain}/{type}/alerts/{value}")
+	@Produces(MediaType.TEXT_PLAIN)
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	public String setAlertable(
+			@PathParam("domain") String domain,
+			@PathParam("type") String type,
+			@PathParam("name") String name,
+			@PathParam("value") String value) {
+	   System.out.println("setAlertable");
+	   return DynamicMBeanMirrorFactory.setAlertable(domain, name, type, value);
+	}
+	
 }

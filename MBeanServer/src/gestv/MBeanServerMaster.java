@@ -69,18 +69,35 @@ public class MBeanServerMaster {
         } catch (IOException e) {
             e.printStackTrace();
         }
+		updateEstado();
 		connDaemon();
 		menu();
 		//server.stop(0);
         //System.exit(0);
 	}
 	
+	private void updateEstado() {
+		MongoDBConnection mdbc;
+		try {
+			mdbc = MongoDBConnection.getInstance();
+	    	mdbc.setColl("man_rscs");
+			BasicDBObject doca = new BasicDBObject().append("_type" , "Serv");
+			BasicDBObject docb = new BasicDBObject();
+			docb.append("$set", new BasicDBObject().append("on", "false"));
+			mdbc.updateAll_doc(doca, docb);
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private void connDaemon() {
 		try {
 			MongoDBConnection mdbc = MongoDBConnection.getInstance();
 			DB db = mdbc.getDb();
+			
+
 			DBCollection coll = db.getCollection("man_rscs");
-			BasicDBObject query = new BasicDBObject("_type", "Serv");
+			BasicDBObject query = new BasicDBObject("_type", "Serv").append("mngbl", "true");
 			
 			DBCursor cursor = coll.find(query);
 			DBObject obj,obj1;
@@ -88,7 +105,13 @@ public class MBeanServerMaster {
 			   while(cursor.hasNext()) {
 				   obj=cursor.next();
 				   obj1=(DBObject) obj.get("conn");
-			       DynamicMBeanMirrorFactory.register((String)obj1.get("ip"), Integer.toString((Integer) obj1.get("port")), (String)obj.get("domain"), (String)obj.get("name"));
+				   String port = null;
+				   if(obj1.get("port").getClass().getCanonicalName().equals("java.lang.Integer"))
+					   port=Integer.toString(((Integer) obj1.get("port")));
+				   else
+					   port=Integer.toString(((Double) obj1.get("port")).intValue());
+
+			       DynamicMBeanMirrorFactory.register((String)obj1.get("ip"), port, (String)obj.get("domain"), (String)obj.get("name"));
 			   }
 			} finally {
 			   cursor.close();

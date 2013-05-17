@@ -100,10 +100,11 @@ public class DynamicMBeanFactory {
 			mbeanServer.registerMBean(dynamicMBean, new ObjectName(domain + ":type=" + type + ",name=" + name));
 			mbeanServer.addNotificationListener(new ObjectName(domain + ":type=" + type + ",name=" + name), attlist, null, null);
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println("fallo getDynamicBean");
+			//e.printStackTrace();
 		}
 
-		Monitors ms = loadMonitor(pathXml,filenameU);
+		/*Monitors ms = loadMonitor(pathXml,filenameU);
 		if(ms!=null){
 			for (MyMonitor mm : ms.getMonitors()) {
 				Monitor m = mm.getMonitor();
@@ -128,8 +129,8 @@ public class DynamicMBeanFactory {
 				monitors.add(m);
 				m.start();
 			}
-		}
-
+		}*/
+		//System.out.println(dynamicMBean);
 		return dynamicMBean;
 	}
 	

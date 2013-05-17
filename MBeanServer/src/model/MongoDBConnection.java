@@ -47,6 +47,14 @@ public class MongoDBConnection {
 		return coll.insert(dbo);
 	}
 	
+	public WriteResult update_doc(BasicDBObject doca, BasicDBObject docb){
+		return coll.update(doca, docb);
+	}
+
+	public WriteResult updateAll_doc(BasicDBObject doca, BasicDBObject docb){
+		return coll.update(doca, docb, false, true);
+	}
+	
 	public DBCursor getAllDocs(){
 		return coll.find();
 	}

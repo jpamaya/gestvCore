@@ -42,12 +42,11 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 import model.MongoDBConnection;
-import model.Monitors;
 import model.MyCounterMonitor;
 import model.MyDynamicMBeanMirror;
 import model.MyGaugeMonitor;
 import model.MyMonitor;
-import model.MyThresholdMonitor;
+//import model.MyThresholdMonitor;
 //import model.MyStringMonitor;
 import mbean.RemoteMessageListener;
 
@@ -67,7 +66,8 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
     	masterMbeanServer=mbServer;
     }
     
-	public static void register(String dirip, String port, String domain, String type){
+	public static String register(String dirip, String port, String domain, String type){
+		String retorno="failure";
 		MBSAConnection connection=MBSAConnections.searchConnection(dirip, port);
 		if(connection==null){
 			connection = new MBSAConnection(dirip, port, domain, type);
@@ -75,11 +75,13 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 			if(connection.getConn()!=null){
 				connection.getConn().addConnectionNotificationListener(new DynamicMBeanMirrorFactory(), null, null);
 				MBSAConnections.add(connection);
-				importAll(connection);				
+				importAll(connection);
+				retorno="success";
 			}
 		}else{
 			System.out.println("Ya existe una conexión en la dirección "+dirip+":"+port);
 		}
+		return retorno;
 	}
 	
 	private static void importAll(MBSAConnection connection){
@@ -87,37 +89,39 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 		if(connection.getConn()!=null){
 			Set<DBObject> mcratrs = new HashSet<DBObject>();
 			DBObject obj = null,obj1;
-			try {
-				MongoDBConnection mdbc = MongoDBConnection.getInstance();
-				DB db = mdbc.getDb();
-				DBCollection coll;
-				BasicDBObject query1,query2;
-				DBCursor cursor1,cursor2;
-				
-				coll = db.getCollection("man_rscs");
-				query1 = new BasicDBObject("name", connection.getType()).append("domain", connection.getDomain());
-				cursor1 = coll.find(query1);
+			MongoDBConnection mdbc = null;
 
-				try {
-				   while(cursor1.hasNext()) {
-					   obj=cursor1.next();
-					   coll = db.getCollection("mcr_atrs");
-					   query2 = new BasicDBObject("man_rsc_id", obj.get("_id"));
-					   cursor2 = coll.find(query2);
-					   try {
-						   while(cursor2.hasNext()) {
-							   obj1=cursor2.next();
-							   mcratrs.add(obj1);
-						   }
-						} finally {
-						   cursor2.close();
-						}
-				   }
-				} finally {
-				   cursor1.close();
-				}
-			} catch (UnknownHostException e) {
-				e.printStackTrace();
+			try {
+				mdbc = MongoDBConnection.getInstance();
+			} catch (UnknownHostException e1) {
+				e1.printStackTrace();
+			}
+			DB db = mdbc.getDb();
+			DBCollection coll;
+			BasicDBObject query1,query2;
+			DBCursor cursor1,cursor2;
+
+			coll = db.getCollection("man_rscs");
+			query1 = new BasicDBObject("name", connection.getType()).append("domain", connection.getDomain());
+			cursor1 = coll.find(query1);
+
+			try {
+			   while(cursor1.hasNext()) {
+				   obj=cursor1.next();
+				   coll = db.getCollection("mcr_atrs");
+				   query2 = new BasicDBObject("man_rsc_id", obj.get("_id"));
+				   cursor2 = coll.find(query2);
+				   try {
+					   while(cursor2.hasNext()) {
+						   obj1=cursor2.next();
+						   mcratrs.add(obj1);
+					   }
+					} finally {
+					   cursor2.close();
+					}
+			   }
+			} finally {
+			   cursor1.close();
 			}
 			
 			ObjectName mirrorName = null;
@@ -130,7 +134,13 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 	                masterMbeanServer.registerMBean(mirror, mirrorName);
 	                mirror.addNotificationListener(attlist, null, "{mrid:"+obj.get("_id")+", maid:"+objma.get("_id")+"}");
 	            	System.out.println("MBean "+mirrorName+" registrado.");
-	            	loadMonitors(connection, objma);
+	            	mdbc.setColl("man_rscs");
+	    			BasicDBObject doca = new BasicDBObject().append("_id",obj.get("_id"));
+	    			BasicDBObject docb = new BasicDBObject();
+	    			docb.append("$set", new BasicDBObject().append("on", "true"));
+	    			mdbc.update_doc(doca, docb);
+	    			if(obj.get("alrtbl").equals("true"))
+	    				loadMonitors(connection, objma);
 	            } catch (IllegalArgumentException e) {
 	            	System.out.println("El MBeanServerAgent \""+mirrorName+"\" no presenta interfaz de notificaciones");
 	            } catch (InstanceAlreadyExistsException e) {
@@ -520,6 +530,12 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 		} catch (MalformedObjectNameException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static String setAlertable(String domain, String name, String type, String value) {
+		//MBSAConnection connection=MBSAConnections.searchConnection(dirip, port);
+		
+		return null;
 	}
 }
 

@@ -18,16 +18,18 @@ public class AttributeHistory implements NotificationListener {
     }
     
     public void handleNotification(Notification notification, Object handback) {
-        try {
-        	Properties props = (Properties)notification.getUserData();
-        	String response = (String)props.get("attribute");
-            String response2 = (String)props.get("value");
-            String domain = (String)props.get("domain");
-            String type = (String)props.get("type");
-            String name = (String)props.get("name");
-        	System.out.println(notification.getType() + " number "+ notification.getSequenceNumber() + " in MBean " + domain + ":type=" + type + ",name="+name+ " with attribute = "+ response + " value = "+response2 + " at "+ formatter.format(notification.getTimeStamp()));
-        } catch (Exception e) {
-        	trace(e.toString());
-        }
+    	if(notification.getType().equals("jmx.attribute.change")){
+	        try {
+	        	Properties props = (Properties)notification.getUserData();
+	        	String response = (String)props.get("attribute");
+	            String response2 = (String)props.get("value");
+	            String domain = (String)props.get("domain");
+	            String type = (String)props.get("type");
+	            String name = (String)props.get("name");
+	        	System.out.println(notification.getType() + " number "+ notification.getSequenceNumber() + " in MBean " + domain + ":type=" + type + ",name="+name+ " with attribute = "+ response + " value = "+response2 + " at "+ formatter.format(notification.getTimeStamp()));
+	        } catch (Exception e) {
+	        	trace(e.toString());
+	        }
+    	}
     }
 }

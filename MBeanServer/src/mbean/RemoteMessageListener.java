@@ -23,6 +23,7 @@ public class RemoteMessageListener implements NotificationListener {
 	
 	private SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd - H:mm:ss");
 	public static MongoDBConnection mdbc;
+	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
     public RemoteMessageListener() {
         super();
@@ -60,8 +61,20 @@ public class RemoteMessageListener implements NotificationListener {
 	        } catch (Exception e) {
 	        	trace(e.toString());
 	        }
-    	}else
+    	}else{
+    		String mrid, maid;
+    		JsonElement jelement = new JsonParser().parse((String) handback);
+            JsonObject  jobject = jelement.getAsJsonObject();
+            mrid=jobject.get("mrid").toString();
+            maid=jobject.get("maid").toString();
+            mrid=mrid.replace("\"", "");
+            maid=maid.replace("\"", "");
+    		mdbc.setColl("alrts");
+            ObjectId objid = new ObjectId();
+        	BasicDBObject doc = new BasicDBObject("man_rsc_id", new ObjectId(mrid)).append("mcr_atr_id", new ObjectId(maid)).append("tipo", "alarm").append("title", notification.getType()).append("msg", notification.getMessage()).append("tstamp", objid.getTime());
+			mdbc.insert_doc(doc);
     		System.out.println("<<Remote>> "+notification.getType() + " in MBean " + notification.getSource() + " at "+ formatter.format(notification.getTimeStamp()));
+    	}
     }
     
     public ObjectId getAtrId(String atrname, String maid){
