@@ -137,10 +137,9 @@ public class RemoteMBeanHelper {
 	public String setAlertable(
 			@PathParam("domain") String domain,
 			@PathParam("type") String type,
-			@PathParam("name") String name,
 			@PathParam("value") String value) {
 	   System.out.println("setAlertable");
-	   return DynamicMBeanMirrorFactory.setAlertable(domain, name, type, value);
+	   return DynamicMBeanMirrorFactory.setAlertable(domain, type, value);
 	}
 	
 }

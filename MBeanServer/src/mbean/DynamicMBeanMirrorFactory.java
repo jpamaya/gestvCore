@@ -527,15 +527,89 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 					e.printStackTrace();
 				}
 			}
+			dynamicData = masterMbeanServer.queryMBeans(new ObjectName("AlrMonitors:type="+connection.getDomain()+",resource="+connection.getType()+",*"), null);
+			for (Iterator<?> it = dynamicData.iterator(); it.hasNext();) {
+				ObjectInstance oi = (ObjectInstance) it.next();
+				ObjectName oName = oi.getObjectName();
+				MyMonitor m = null;
+				for (int i=0;i<mymonitors.size(); i++) {
+					if(((MyMonitor)mymonitors.get(i)).getName().equals(""+oName)){
+						m=(MyMonitor)mymonitors.get(i);
+						break;
+					}
+				}
+				m.getMonitor().stop();
+				System.out.println("removido monitor "+m.getName());
+				mymonitors.remove(m);
+				try {
+					masterMbeanServer.unregisterMBean(oName);
+				} catch (MBeanRegistrationException e) {
+					e.printStackTrace();
+				} catch (InstanceNotFoundException e) {
+					e.printStackTrace();
+				}
+			}
+
 		} catch (MalformedObjectNameException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public static String setAlertable(String domain, String name, String type, String value) {
-		//MBSAConnection connection=MBSAConnections.searchConnection(dirip, port);
-		
-		return null;
+	public static String setAlertable(String domain, String type, String value) {
+		String retorno="";
+		MBSAConnection connection=MBSAConnections.searchConnection2(domain, type);
+		if(value.equals("act")){
+			if(connection.getConn()!=null){
+				Set<DBObject> mcratrs = new HashSet<DBObject>();
+				DBObject obj = null,obj1;
+				MongoDBConnection mdbc = null;
+	
+				try {
+					mdbc = MongoDBConnection.getInstance();
+				} catch (UnknownHostException e1) {
+					e1.printStackTrace();
+				}
+				DB db = mdbc.getDb();
+				DBCollection coll;
+				BasicDBObject query1,query2;
+				DBCursor cursor1,cursor2;
+	
+				coll = db.getCollection("man_rscs");
+				query1 = new BasicDBObject("name", connection.getType()).append("domain", connection.getDomain());
+				cursor1 = coll.find(query1);
+	
+				try {
+				   while(cursor1.hasNext()) {
+					   obj=cursor1.next();
+					   coll = db.getCollection("mcr_atrs");
+					   query2 = new BasicDBObject("man_rsc_id", obj.get("_id"));
+					   cursor2 = coll.find(query2);
+					   try {
+						   while(cursor2.hasNext()) {
+							   obj1=cursor2.next();
+							   mcratrs.add(obj1);
+						   }
+						} finally {
+						   cursor2.close();
+						}
+				   }
+				} finally {
+				   cursor1.close();
+				}
+				
+		        for (DBObject objma : mcratrs) {
+		            try {
+		    			if(obj.get("alrtbl").equals("true"))
+		    				loadMonitors(connection, objma);
+		            } catch (IllegalArgumentException e) {}
+		        }
+			}
+			retorno="act";
+		}else{
+			unloadMonitors(connection);
+			retorno="inact";
+		}
+		return retorno;
 	}
 }
 

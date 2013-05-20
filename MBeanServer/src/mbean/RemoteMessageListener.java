@@ -55,7 +55,7 @@ public class RemoteMessageListener implements NotificationListener {
 	            aid=getAtrId(response, maid);
 	        	mdbc.setColl("atr_hst");
 	        	ObjectId objid = new ObjectId(); 
-				BasicDBObject doc = new BasicDBObject("atr_id", aid).append("value", response2).append("tstamp", objid.getTime());
+				BasicDBObject doc = new BasicDBObject("atr_id", aid).append("value", response2).append("tstamp", objid.getTimeSecond());
 				mdbc.insert_doc(doc);
 	        	System.out.println("<<Remote>> "+notification.getType() + " number "+ notification.getSequenceNumber() + " in MBean " + notification.getSource() + " with attribute = "+ response + " value = "+response2 + " at "+ formatter.format(notification.getTimeStamp()));				
 	        } catch (Exception e) {
@@ -71,7 +71,7 @@ public class RemoteMessageListener implements NotificationListener {
             maid=maid.replace("\"", "");
     		mdbc.setColl("alrts");
             ObjectId objid = new ObjectId();
-        	BasicDBObject doc = new BasicDBObject("man_rsc_id", new ObjectId(mrid)).append("mcr_atr_id", new ObjectId(maid)).append("tipo", "alarm").append("title", notification.getType()).append("msg", notification.getMessage()).append("tstamp", objid.getTime());
+        	BasicDBObject doc = new BasicDBObject("man_rsc_id", new ObjectId(mrid)).append("mcr_atr_id", new ObjectId(maid)).append("tipo", "alarm").append("title", notification.getType()).append("msg", notification.getMessage()).append("tstamp", objid.getTimeSecond());
 			mdbc.insert_doc(doc);
     		System.out.println("<<Remote>> "+notification.getType() + " in MBean " + notification.getSource() + " at "+ formatter.format(notification.getTimeStamp()));
     	}

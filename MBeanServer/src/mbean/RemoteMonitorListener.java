@@ -84,7 +84,8 @@ public class RemoteMonitorListener implements NotificationListener {
         	montype="alarm";
         String atrid=jobject.get("atrid").toString();
         atrid=atrid.replace("\"", "");
-		BasicDBObject doc = new BasicDBObject("atr_id", new ObjectId(atrid)).append("tipo", montype).append("title", title).append("msg", msg);
+        ObjectId objid = new ObjectId();
+		BasicDBObject doc = new BasicDBObject("atr_id", new ObjectId(atrid)).append("tipo", montype).append("title", title).append("msg", msg).append("tstamp", objid.getTimeSecond());
 		mdbc.insert_doc(doc);
     }
 }

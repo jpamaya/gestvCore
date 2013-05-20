@@ -42,6 +42,17 @@ public class MBSAConnections {
 		}
 		return agentMBeanServer;
 	}
+
+	public static MBSAConnection searchConnection2(String domain, String type){
+		MBSAConnection agentMBeanServer = null;
+		for (MBSAConnection agent : connections) {
+			if(agent.getDomain().equals(domain) && agent.getType().equals(type)){
+				agentMBeanServer=agent;
+				break;
+			}
+		}
+		return agentMBeanServer;
+	}
 	
 	public static boolean verifyConnection(String dirip, String port){
 		boolean exist=false;
