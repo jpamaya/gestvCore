@@ -24,7 +24,7 @@ import model.MongoDBConnection;
 public class MBeanServerMaster {
 	
     private MBeanServer masterMbeanServer;
-    static final String BASE_URI = "http://0.0.0.0:9999/mbs/";
+    private static final String BASE_URI = "http://0.0.0.0:9999/mbs/";
     private static HttpServer server; 
     
 	public static void main(String[] args) {
