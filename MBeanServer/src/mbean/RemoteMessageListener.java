@@ -53,7 +53,7 @@ public class RemoteMessageListener implements NotificationListener {
 	            String response2 = (String)props.get("value");
 	            ObjectId aid;
 	            aid=getAtrId(response, maid);
-	        	mdbc.setColl("atr_hst");
+	        	mdbc.setColl("atr_hsts");
 	        	ObjectId objid = new ObjectId(); 
 				BasicDBObject doc = new BasicDBObject("atr_id", aid).append("value", response2).append("tstamp", objid.getTimeSecond());
 				mdbc.insert_doc(doc);

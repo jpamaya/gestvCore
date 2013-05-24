@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<editmodel:ClassDiagramEditModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:editmodel="editmodel.xmi" xmlns:options="options.xmi" name="Dependencies" size="1334,623" id="." metadata="uml2-1.0" initialized="true" tag="10" key="32303037303533312D3130204D4265616E536572766572">
+  <children xsi:type="editmodel:GroupEditModel" location="105,150" size="749,451">
+    <children xsi:type="editmodel:PackageEditModel" targetConnections="//@children.0/@children.3/@sourceConnections.0 //@children.0/@children.1/@sourceConnections.2 //@children.0/@children.2/@sourceConnections.3" name="com.mongodb" location="135,120" size="142,31" id="com.mongodb"/>
+    <children xsi:type="editmodel:PackageEditModel" targetConnections="//@children.0/@children.2/@sourceConnections.0" name="mbean" location="0,420" size="86,31" id="mbean">
+      <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="mbean-Soyatec::Import->model" source="//@children.0/@children.1" target="//@children.0/@children.3" targetEnd="//@children.0/@children.1/@sourceConnections.0/@children.2" label="//@children.0/@children.1/@sourceConnections.0/@children.0" sourceEnd="//@children.0/@children.1/@sourceConnections.0/@children.1" connectionRouterKind="Manual">
+        <children xsi:type="editmodel:WireLabelEditModel" name="«Import»" size="49,13" anchorKind="MiddlePart"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="62,0" attachSource="true"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="21,31"/>
+      </sourceConnections>
+      <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="mbean-Soyatec::Implement->javax.management*mbean->javax.management*mbean-Soyatec::Import->javax.management" source="//@children.0/@children.1" target="//@children.0/@children.6" targetEnd="//@children.0/@children.1/@sourceConnections.1/@children.2" label="//@children.0/@children.1/@sourceConnections.1/@children.0" sourceEnd="//@children.0/@children.1/@sourceConnections.1/@children.1" connectionRouterKind="Manual">
+        <children xsi:type="editmodel:WireLabelEditModel" name="«Implement, Import»" size="113,13" anchorKind="MiddlePart"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="86,15" attachSource="true"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="0,15"/>
+      </sourceConnections>
+      <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="mbean-Soyatec::Import->com.mongodb*mbean->com.mongodb" source="//@children.0/@children.1" target="//@children.0/@children.0" targetEnd="//@children.0/@children.1/@sourceConnections.2/@children.2" label="//@children.0/@children.1/@sourceConnections.2/@children.0" sourceEnd="//@children.0/@children.1/@sourceConnections.2/@children.1" connectionRouterKind="Manual">
+        <children xsi:type="editmodel:WireLabelEditModel" name="«Import»" size="49,13" anchorKind="MiddlePart"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="51,0" attachSource="true"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="62,31"/>
+      </sourceConnections>
+      <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="mbean->javax.management.monitor*mbean-Soyatec::Import->javax.management.monitor" source="//@children.0/@children.1" target="//@children.0/@children.5" targetEnd="//@children.0/@children.1/@sourceConnections.3/@children.2" label="//@children.0/@children.1/@sourceConnections.3/@children.0" sourceEnd="//@children.0/@children.1/@sourceConnections.3/@children.1" connectionRouterKind="Manual">
+        <children xsi:type="editmodel:WireLabelEditModel" name="«Import»" size="49,13" anchorKind="MiddlePart"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="42,0" attachSource="true"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="42,31"/>
+      </sourceConnections>
+    </children>
+    <children xsi:type="editmodel:PackageEditModel" name="gestv" location="360,225" size="77,31" id="gestv">
+      <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="gestv-Soyatec::Import->mbean" source="//@children.0/@children.2" target="//@children.0/@children.1" targetEnd="//@children.0/@children.2/@sourceConnections.0/@children.2" label="//@children.0/@children.2/@sourceConnections.0/@children.0" sourceEnd="//@children.0/@children.2/@sourceConnections.0/@children.1" connectionRouterKind="Manual">
+        <children xsi:type="editmodel:WireLabelEditModel" name="«Import»" size="49,13" anchorKind="MiddlePart"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="9,31" attachSource="true"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="70,0"/>
+      </sourceConnections>
+      <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="gestv-Soyatec::Import->model" source="//@children.0/@children.2" target="//@children.0/@children.3" targetEnd="//@children.0/@children.2/@sourceConnections.1/@children.2" label="//@children.0/@children.2/@sourceConnections.1/@children.0" sourceEnd="//@children.0/@children.2/@sourceConnections.1/@children.1" connectionRouterKind="Manual">
+        <children xsi:type="editmodel:WireLabelEditModel" name="«Import»" size="49,13" anchorKind="MiddlePart"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="49,0" attachSource="true"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="29,31"/>
+      </sourceConnections>
+      <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="gestv-Soyatec::Import->javax.management" source="//@children.0/@children.2" target="//@children.0/@children.6" targetEnd="//@children.0/@children.2/@sourceConnections.2/@children.2" label="//@children.0/@children.2/@sourceConnections.2/@children.0" sourceEnd="//@children.0/@children.2/@sourceConnections.2/@children.1" connectionRouterKind="Manual">
+        <children xsi:type="editmodel:WireLabelEditModel" name="«Import»" size="49,13" anchorKind="MiddlePart"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="59,31" attachSource="true"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="69,0"/>
+      </sourceConnections>
+      <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="gestv->com.mongodb*gestv-Soyatec::Import->com.mongodb" source="//@children.0/@children.2" target="//@children.0/@children.0" targetEnd="//@children.0/@children.2/@sourceConnections.3/@children.2" label="//@children.0/@children.2/@sourceConnections.3/@children.0" sourceEnd="//@children.0/@children.2/@sourceConnections.3/@children.1" connectionRouterKind="Manual">
+        <children xsi:type="editmodel:WireLabelEditModel" name="«Import»" size="49,13" anchorKind="MiddlePart"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="11,0" attachSource="true"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="100,31"/>
+      </sourceConnections>
+      <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="gestv->com.sun.jersey.api.container.httpserver" source="//@children.0/@children.2" target="//@children.0/@children.4" targetEnd="//@children.0/@children.2/@sourceConnections.4/@children.2" label="//@children.0/@children.2/@sourceConnections.4/@children.0" sourceEnd="//@children.0/@children.2/@sourceConnections.4/@children.1" connectionRouterKind="Manual">
+        <children xsi:type="editmodel:WireLabelEditModel" size="0,13" anchorKind="MiddlePart"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="38,31" attachSource="true"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="222,0"/>
+      </sourceConnections>
+    </children>
+    <children xsi:type="editmodel:PackageEditModel" targetConnections="//@children.0/@children.1/@sourceConnections.0 //@children.0/@children.2/@sourceConnections.1" name="model" location="525,0" size="82,31" id="model">
+      <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="model->com.mongodb*model-Soyatec::Import->com.mongodb" source="//@children.0/@children.3" target="//@children.0/@children.0" targetEnd="//@children.0/@children.3/@sourceConnections.0/@children.2" label="//@children.0/@children.3/@sourceConnections.0/@children.0" sourceEnd="//@children.0/@children.3/@sourceConnections.0/@children.1" connectionRouterKind="Manual">
+        <children xsi:type="editmodel:WireLabelEditModel" name="«Import»" size="49,13" anchorKind="MiddlePart"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="0,29" attachSource="true"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="116,0"/>
+      </sourceConnections>
+      <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="model-Soyatec::Implement->javax.management*model-Soyatec::Import->javax.management*model->javax.management" source="//@children.0/@children.3" target="//@children.0/@children.6" targetEnd="//@children.0/@children.3/@sourceConnections.1/@children.2" label="//@children.0/@children.3/@sourceConnections.1/@children.0" sourceEnd="//@children.0/@children.3/@sourceConnections.1/@children.1" connectionRouterKind="Manual">
+        <children xsi:type="editmodel:WireLabelEditModel" name="«Implement, Import»" size="113,13" anchorKind="MiddlePart"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="63,31" attachSource="true"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="18,0"/>
+      </sourceConnections>
+      <sourceConnections xsi:type="editmodel:DependencyEditModel" autoLocated="true" id="model-Soyatec::Import->javax.management.monitor*model-Soyatec::Implement->javax.management.monitor*model->javax.management.monitor" source="//@children.0/@children.3" target="//@children.0/@children.5" targetEnd="//@children.0/@children.3/@sourceConnections.2/@children.2" label="//@children.0/@children.3/@sourceConnections.2/@children.0" sourceEnd="//@children.0/@children.3/@sourceConnections.2/@children.1" connectionRouterKind="Manual">
+        <children xsi:type="editmodel:WireLabelEditModel" name="«Implement, Import»" size="113,13" anchorKind="MiddlePart"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="0,15" attachSource="true"/>
+        <children xsi:type="editmodel:AssociationEndEditModel" location="243,15"/>
+      </sourceConnections>
+    </children>
+    <children xsi:type="editmodel:PackageEditModel" targetConnections="//@children.0/@children.2/@sourceConnections.4" name="com.sun.jersey.api.container.httpserver" location="176,375" size="356,31" id="com.sun.jersey.api.container.httpserver"/>
+    <children xsi:type="editmodel:PackageEditModel" targetConnections="//@children.0/@children.3/@sourceConnections.2 //@children.0/@children.1/@sourceConnections.3" name="javax.management.monitor" size="243,31" id="javax.management.monitor"/>
+    <children xsi:type="editmodel:PackageEditModel" targetConnections="//@children.0/@children.3/@sourceConnections.1 //@children.0/@children.2/@sourceConnections.2 //@children.0/@children.1/@sourceConnections.1" name="javax.management" location="570,420" size="179,31" id="javax.management"/>
+  </children>
+  <diagramOptions xsi:type="options:ClassDiagramOptions" properties="libraryFilter=;ModelFrozen=true;compute_weights=false;ComputedContent=true;displayOptions=1;open=mbean,model,gestv;Product=eDepend;link=mbean-Soyatec::Import->model,gestv-Soyatec::Import->mbean,gestv-Soyatec::Import->model;dependencyFilter=Standard::Derive,Soyatec::Implement,Standard::Instantiate,Standard::Create,Standard::Call,Standard::Send,Soyatec::Access,Soyatec::Import,;wireOptions=4"/>
+  <boardSetting snapToGeometry="true" gridEnabled="true" gridSpacing="15,15" gridOrigin="0,0" rulerUnit="pixel" gridVisibility="false">
+    <leftRuler/>
+    <topRuler/>
+  </boardSetting>
+  <classDiagramPreferences xsi:type="editmodel:UMLClassDiagramPreference" showPopupBars="true" showConnectionHandles="true" attributeSorter="Natural" methodSorter="Natural" showDependencyStereotype="true" showEnumerationStereotype="false" innerClassSorter="Natural" showPublicInnerClasses="true" showPackageInnerClasses="true" showStaticInnerClasses="true" packageIndication="3"/>
+</editmodel:ClassDiagramEditModel>

@@ -1,8 +1,6 @@
 package mbean;
 
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.lang.management.ManagementFactory;
 import javax.management.monitor.Monitor;
 
@@ -16,24 +14,17 @@ import java.util.Set;
 import javax.management.Attribute;
 import javax.management.AttributeList;
 import javax.management.AttributeNotFoundException;
-import javax.management.InstanceAlreadyExistsException;
 import javax.management.InstanceNotFoundException;
 import javax.management.InvalidAttributeValueException;
 import javax.management.MBeanException;
 import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
-import org.simpleframework.xml.Serializer;
-import org.simpleframework.xml.core.Persister;
-
 import model.MyDynamicMBean;
-import model.Monitors;
-import model.MyMonitor;
 
 public class DynamicMBeanFactory {
 
@@ -41,7 +32,6 @@ public class DynamicMBeanFactory {
 	public static MBeanServer mbeanServer;
 	public static String filename = "example.xml";
 	public static String filenameM = "exampleMonitors.xml";
-    private static MonitorListener listener = new MonitorListener();
     private static AttributeHistory attlist = new AttributeHistory();
     private static List<Monitor> monitors = new ArrayList<Monitor>();
 
@@ -244,19 +234,5 @@ public class DynamicMBeanFactory {
 			retorno=e.toString();
 		}
 		return retorno;
-	}
-	
-	public static Monitors loadMonitor(String xmlPath, String xmlFileName){
-		Serializer serializer = new Persister();
-		File source = new File(xmlPath+"/"+xmlFileName+"Monitors.xml");
-		Monitors mm = null;
-		try {
-			mm = serializer.read(Monitors.class, source);
-		} catch (FileNotFoundException e) {
-			System.out.println("El MBean no tiene configuración de monitores.");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return mm;
 	}
 }
