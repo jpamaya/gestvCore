@@ -169,6 +169,7 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
             try {
         		unloadMonitors(connection);
         		masterMbeanServer.unregisterMBean(name);
+        		setMROff(connection.getDomain(), connection.getType());
             } catch (IllegalArgumentException e) {
             	System.out.println("El MBean \""+name+"\" no presenta interfaz de notificaciones");
             } catch (MBeanRegistrationException e) {
@@ -188,7 +189,7 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
             	if(!name.toString().equals("JMImplementation:type=MBeanServerDelegate"))
             		unloadMonitors(connection);
             		masterMbeanServer.unregisterMBean(name);
-
+            		setMROff(connection.getDomain(), connection.getType());
             } catch (IllegalArgumentException e) {
             	System.out.println("El MBean \""+name+"\" no presenta interfaz de notificaciones");
             } catch (MBeanRegistrationException e) {
@@ -199,6 +200,38 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
         }
 		MBSAConnections.removeConnection(connection);
 		connection.setConn(null);
+	}
+	
+	private static void setMROff(String domain, String type){
+		DBObject obj = null;
+		MongoDBConnection mdbc = null;
+
+		try {
+			mdbc = MongoDBConnection.getInstance();
+		} catch (UnknownHostException e1) {
+			e1.printStackTrace();
+		}
+		DB db = mdbc.getDb();
+		DBCollection coll;
+		BasicDBObject query1;
+		DBCursor cursor1;
+
+		coll = db.getCollection("man_rscs");
+		query1 = new BasicDBObject("name", type).append("domain", domain);
+		cursor1 = coll.find(query1);
+
+		try {
+		   while(cursor1.hasNext()) {
+			   obj=cursor1.next();
+		   }
+		} finally {
+		   cursor1.close();
+		}
+		mdbc.setColl("man_rscs");
+		BasicDBObject doca = new BasicDBObject().append("_id",obj.get("_id"));
+		BasicDBObject docb = new BasicDBObject();
+		docb.append("$set", new BasicDBObject().append("off", "true"));
+		mdbc.update_doc(doca, docb);
 	}
 
 	@Override
