@@ -83,7 +83,7 @@ public class MBeanServerMaster {
 	    	mdbc.setColl("man_rscs");
 			BasicDBObject doca = new BasicDBObject().append("_type" , "Serv");
 			BasicDBObject docb = new BasicDBObject();
-			docb.append("$set", new BasicDBObject().append("on", "false"));
+			docb.append("$set", new BasicDBObject().append("on", false));
 			mdbc.updateAll_doc(doca, docb);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
@@ -97,7 +97,7 @@ public class MBeanServerMaster {
 			
 
 			DBCollection coll = db.getCollection("man_rscs");
-			BasicDBObject query = new BasicDBObject("_type", "Serv").append("mngbl", "true");
+			BasicDBObject query = new BasicDBObject("_type", "Serv").append("mngbl", true);
 			
 			DBCursor cursor = coll.find(query);
 			DBObject obj,obj1;
@@ -171,6 +171,7 @@ public class MBeanServerMaster {
 				break;
 			}
 		}
+		updateEstado();
 		scanner.close();
         server.stop(0);
         System.exit(0);

@@ -123,12 +123,13 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 			} finally {
 			   cursor1.close();
 			}
-			
+			Set<ObjectName> mbeanNames = new HashSet<ObjectName>();
 			ObjectName mirrorName = null;
 			ObjectName name = null;
 	        for (DBObject objma : mcratrs) {
 	            try {
 	            	name = new ObjectName(connection.getDomain()+":type="+connection.getType()+",name="+objma.get("name"));
+	            	mbeanNames.add(name);
 	                mirrorName = name;
 	                MyDynamicMBeanMirror mirror = DynamicMBeanMirrorFactory.newMBeanMirror(connection.getAgentMbeanServer(), name);
 	                masterMbeanServer.registerMBean(mirror, mirrorName);
@@ -137,7 +138,7 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 	            	mdbc.setColl("man_rscs");
 	    			BasicDBObject doca = new BasicDBObject().append("_id",obj.get("_id"));
 	    			BasicDBObject docb = new BasicDBObject();
-	    			docb.append("$set", new BasicDBObject().append("on", "true"));
+	    			docb.append("$set", new BasicDBObject().append("on", true));
 	    			mdbc.update_doc(doca, docb);
 	    			if(obj.get("alrtbl").equals("true"))
 	    				loadMonitors(connection, objma);
@@ -159,11 +160,14 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 					e.printStackTrace();
 				}
 	        }
+	        connection.setMbeanNames(mbeanNames);
 		}
     }
 
 	public static void removeAll(String ip, String port){
 		MBSAConnection connection=MBSAConnections.searchConnection(ip, port);
+		System.out.println(connection.getDomain());
+		System.out.println(connection.getType());
 		Set<ObjectName> names = connection.getMbeanNames();
         for (ObjectName name : names) {
             try {
@@ -230,7 +234,7 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 		mdbc.setColl("man_rscs");
 		BasicDBObject doca = new BasicDBObject().append("_id",obj.get("_id"));
 		BasicDBObject docb = new BasicDBObject();
-		docb.append("$set", new BasicDBObject().append("off", "true"));
+		docb.append("$set", new BasicDBObject().append("on", false));
 		mdbc.update_doc(doca, docb);
 	}
 

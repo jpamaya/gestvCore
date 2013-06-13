@@ -4,6 +4,8 @@ package mbean;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.management.ManagementFactory;
+
+import javax.management.monitor.CounterMonitor1;
 import javax.management.monitor.Monitor;
 
 import java.util.ArrayList;
@@ -70,7 +72,7 @@ public class DynamicMBeanFactory {
 			e.printStackTrace();
 		}
 
-		Monitors ms = loadMonitor(pathXml,filenameU);
+		/*Monitors ms = loadMonitor(pathXml,filenameU);
 		if(ms!=null){
 			for (MyMonitor mm : ms.getMonitors()) {
 				Monitor m = mm.getMonitor();
@@ -95,6 +97,41 @@ public class DynamicMBeanFactory {
 				monitors.add(m);
 				m.start();
 			}
+		}*/
+		CounterMonitor1 cm1 = new CounterMonitor1();
+		try {
+			cm1.addObservedObject(new ObjectName(domain + ":type=" + type + ",name=" + name));
+			cm1.setObservedObject(new ObjectName(domain + ":type=" + type + ",name=" + name));
+			cm1.setObservedAttribute("perfil");
+			cm1.setGranularityPeriod(1000);
+			cm1.setThreshold(5);
+			cm1.setOffset(0);
+			cm1.preRegister(mbeanServer, new ObjectName(domain + ":type=" + type + ",name=" + name));
+			mbeanServer.registerMBean(cm1, new ObjectName("cm1:type=cmn"));
+			cm1.addNotificationListener(listener, null, null);
+			monitors.add(cm1);
+			cm1.start();
+		} catch (MalformedObjectNameException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NullPointerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstanceAlreadyExistsException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MBeanRegistrationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NotCompliantMBeanException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		return dynamicMBean;

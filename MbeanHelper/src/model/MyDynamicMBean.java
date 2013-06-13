@@ -151,9 +151,9 @@ public class MyDynamicMBean implements DynamicMBean, NotificationEmitter{
 		Serializer serializer = new Persister();
 		File source = new File(xmlFileName);
 		try {
-			MyManRes manres= serializer.read(MyManRes.class, source);
-			//mbeaninfo = serializer.read(MyMBeanInfo.class, source);
-			mbeaninfo = manres.getMacroAttributes()[0];
+			//MyManRes manres= serializer.read(MyManRes.class, source);
+			mbeaninfo = serializer.read(MyMBeanInfo.class, source);
+			//mbeaninfo = manres.getMacroAttributes()[0];
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

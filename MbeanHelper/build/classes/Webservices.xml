@@ -1,11 +1,11 @@
-<myMBeanInfo className="mbean.MyDynamicMBean" description="Property Manager MBean">
+<myMBeanInfo className="mbean.MyDynamicMBean" description="Property Manager MBean" name="ga1" referenceProtocol="" type="simple">
    <attributes length="61">
       <myMBeanAttributeInfo name="notificaciones" type="java.lang.Integer" description="Número de peticiones al servicio de consulta de notificaciones." isReadable="true" isWritable="false" isIs="false"><value>0</value></myMBeanAttributeInfo>
       <myMBeanAttributeInfo name="notificacionLeidos" type="java.lang.Integer" description="Número de peticiones al servicio de consulta de notificaciones leídas." isReadable="true" isWritable="false" isIs="false"><value>0</value></myMBeanAttributeInfo>
       <myMBeanAttributeInfo name="notificacionMensaje" type="java.lang.Integer" description="Número de peticiones al servicio de notificación de un mensaje." isReadable="true" isWritable="false" isIs="false"><value>0</value></myMBeanAttributeInfo>
       <myMBeanAttributeInfo name="notificacion" type="java.lang.Integer" description="Número de peticiones al servicio de lectura de una notificación." isReadable="true" isWritable="false" isIs="false"><value>0</value></myMBeanAttributeInfo>
       <myMBeanAttributeInfo name="actualizarPerfil" type="java.lang.Integer" description="Número de peticiones al servicio de actualizar perfil." isReadable="true" isWritable="false" isIs="false"><value>0</value></myMBeanAttributeInfo>
-      <myMBeanAttributeInfo name="perfil" type="java.lang.Integer" description="Número de peticiones al servicio de consulta de perfil." isReadable="true" isWritable="false" isIs="false"><value>0</value></myMBeanAttributeInfo>
+      <myMBeanAttributeInfo name="perfil" type="java.lang.Integer" description="Número de peticiones al servicio de consulta de perfil." isReadable="true" isWritable="true" isIs="false"><value>0</value></myMBeanAttributeInfo>
       <myMBeanAttributeInfo name="busquedaPersonas" type="java.lang.Integer" description="Número de peticiones al servicio de consulta de personas." isReadable="true" isWritable="false" isIs="false"><value>0</value></myMBeanAttributeInfo>
       <myMBeanAttributeInfo name="miembros" type="java.lang.Integer" description="Número de peticiones al servicio de consulta de miembros." isReadable="true" isWritable="false" isIs="false"><value>0</value></myMBeanAttributeInfo>
       <myMBeanAttributeInfo name="chatPost" type="java.lang.Integer" description="Número de peticiones al servicio de publicación de un mensaje en el chat." isReadable="true" isWritable="false" isIs="false"><value>0</value></myMBeanAttributeInfo>

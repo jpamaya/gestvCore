@@ -31,8 +31,8 @@ public class TestMBeanServerAgent {
         MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
 		DynamicMBeanFactory.getDynamicBean(domain, name, type, r.getPath(), type);
         try {
-			LocateRegistry.createRegistry(10000);
-	        JMXServiceURL url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + InetAddress.getLocalHost().getHostName() + ":10000/jmxrmi");
+			LocateRegistry.createRegistry(12008);
+	        JMXServiceURL url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + InetAddress.getLocalHost().getHostName() + ":12008/jmxrmi");
 	        JMXConnectorServer cs = JMXConnectorServerFactory.newJMXConnectorServer(url, null, mbeanServer);
 	        cs.start();
 	        System.out.println("Escuchando en " + cs.getAddress());

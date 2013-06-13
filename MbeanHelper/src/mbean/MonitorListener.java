@@ -17,7 +17,7 @@ public class MonitorListener implements NotificationListener {
         String type = notif.getType();
         String object=notif.getObservedObject().toString();
         String attribute=notif.getObservedAttribute();
-        
+        System.out.println(type);
         try {
             if (type.equals(MonitorNotification.OBSERVED_OBJECT_ERROR)) {
                 System.out.println("\n\t>> " + notif.getObservedObject().getClass().getName() + " is not registered in the server");
