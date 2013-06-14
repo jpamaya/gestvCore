@@ -140,7 +140,7 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 	    			BasicDBObject docb = new BasicDBObject();
 	    			docb.append("$set", new BasicDBObject().append("on", true));
 	    			mdbc.update_doc(doca, docb);
-	    			if(obj.get("alrtbl").equals("true"))
+	    			if((Boolean) obj.get("alrtbl"))
 	    				loadMonitors(connection, objma);
 	            } catch (IllegalArgumentException e) {
 	            	System.out.println("El MBeanServerAgent \""+mirrorName+"\" no presenta interfaz de notificaciones");
@@ -636,7 +636,7 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 				
 		        for (DBObject objma : mcratrs) {
 		            try {
-		    			if(obj.get("alrtbl").equals("true"))
+		    			if((Boolean) obj.get("alrtbl"))
 		    				loadMonitors(connection, objma);
 		            } catch (IllegalArgumentException e) {}
 		        }
