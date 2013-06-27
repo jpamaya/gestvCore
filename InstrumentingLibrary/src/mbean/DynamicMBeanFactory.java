@@ -32,7 +32,6 @@ public class DynamicMBeanFactory {
 	public static MBeanServer mbeanServer;
 	public static String filename = "example.xml";
 	public static String filenameM = "exampleMonitors.xml";
-    private static AttributeHistory attlist = new AttributeHistory();
     private static List<Monitor> monitors = new ArrayList<Monitor>();
 
 	public static MyDynamicMBean getDynamicBean() {
@@ -59,7 +58,6 @@ public class DynamicMBeanFactory {
 			dynamicMBean.setDomain(domain);
 			dynamicMBean.setType(type);
 			mbeanServer.registerMBean(dynamicMBean, new ObjectName(domain + ":type=" + type));
-			mbeanServer.addNotificationListener(new ObjectName(domain + ":type=" + type), attlist, null, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -88,7 +86,6 @@ public class DynamicMBeanFactory {
 			dynamicMBean.setName(name);
 			dynamicMBean.setType(type);
 			mbeanServer.registerMBean(dynamicMBean, new ObjectName(domain + ":type=" + type + ",name=" + name));
-			mbeanServer.addNotificationListener(new ObjectName(domain + ":type=" + type + ",name=" + name), attlist, null, null);
 		} catch (Exception e) {
 			System.out.println("fallo getDynamicBean");
 			//e.printStackTrace();
