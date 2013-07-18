@@ -18,6 +18,7 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.WriteResult;
 
 public class RemoteMessageListener implements NotificationListener {
 	
@@ -71,8 +72,22 @@ public class RemoteMessageListener implements NotificationListener {
             maid=maid.replace("\"", "");
     		mdbc.setColl("alrts");
             ObjectId objid = new ObjectId();
-        	BasicDBObject doc = new BasicDBObject("man_rsc_id", new ObjectId(mrid)).append("mcr_atr_id", new ObjectId(maid)).append("tipo", "alarm").append("title", notification.getType()).append("msg", notification.getMessage()).append("tstamp", objid.getTimeSecond());
-			mdbc.insert_doc(doc);
+            int estampa=objid.getTimeSecond();
+            String titulo=notification.getType();
+			DBCollection coll = mdbc.getColl();
+			BasicDBObject query = new BasicDBObject("title", titulo).append("tipo", "alarm").append("state", new BasicDBObject("$ne", "solved"));
+			DBCursor cursor = coll.find(query);
+			System.out.println("count="+cursor.count());
+			if (cursor.count()==0){
+	        	BasicDBObject doc = new BasicDBObject("man_rsc_id", new ObjectId(mrid)).append("mcr_atr_id", new ObjectId(maid)).append("tipo", "alarm").append("title", titulo).append("msg", notification.getMessage()).append("tstamp_ini", estampa).append("tstamp_last", estampa).append("count", 1).append("state", "noAtt");
+				mdbc.insert_doc(doc);
+			}else{
+				DBObject searchQuery=cursor.next();
+				DBObject modifier = new BasicDBObject("count", 1);
+				DBObject incQuery = new BasicDBObject("$inc", modifier).append("$set", new BasicDBObject().append("tstamp_last", estampa));;
+				coll.update(searchQuery, incQuery);
+			}
+			cursor.close();            
     		System.out.println("<<Remote>> "+notification.getType() + " in MBean " + notification.getSource() + " at "+ formatter.format(notification.getTimeStamp()));
     	}
     }

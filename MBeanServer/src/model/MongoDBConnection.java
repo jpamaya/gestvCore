@@ -1,6 +1,7 @@
 package model;
 
 import java.net.UnknownHostException;
+import java.util.Collection;
 import java.util.Set;
 
 //import com.mongodb.AggregationOutput;
@@ -25,6 +26,10 @@ public class MongoDBConnection {
 	
 	public DB getDb(){
 		return db;
+	}
+	
+	public DBCollection getColl(){
+		return coll;
 	}
 	
 	public void setColl(String collection){
