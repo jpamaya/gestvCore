@@ -38,7 +38,7 @@ public class DynamicMBeanFactory {
 		mbeanServer = ManagementFactory.getPlatformMBeanServer();
 		MyDynamicMBean dynamicMBean = null;
 		try {
-			dynamicMBean = new MyDynamicMBean(filename);
+			dynamicMBean = new MyDynamicMBean(filename,0);
 			mbeanServer.registerMBean(dynamicMBean, new ObjectName(dynamicMBean.getClass().getPackage().getName() + ":type=" + dynamicMBean.getClass().getSimpleName()+counter));
 			System.out.println("registrado mbean "+counter);
 			counter++;
@@ -54,7 +54,7 @@ public class DynamicMBeanFactory {
 		mbeanServer = ManagementFactory.getPlatformMBeanServer();
 		MyDynamicMBean dynamicMBean = null;
 		try {
-			dynamicMBean = new MyDynamicMBean(pathXml+"/"+filename);
+			dynamicMBean = new MyDynamicMBean(pathXml+"/"+filename, 0);
 			dynamicMBean.setDomain(domain);
 			dynamicMBean.setType(type);
 			mbeanServer.registerMBean(dynamicMBean, new ObjectName(domain + ":type=" + type));
@@ -69,7 +69,7 @@ public class DynamicMBeanFactory {
 	}
 	
 	
-	public static MyDynamicMBean getDynamicBean(String domain, String name, String type, String pathXml, String namefile) {
+	public static MyDynamicMBean getDynamicBean(String domain, String name, String type, String pathXml, String namefile, int order) {
 		//Register a MBean
 		String filenameU=null;
 		if(namefile==null)
@@ -81,14 +81,13 @@ public class DynamicMBeanFactory {
 		MyDynamicMBean dynamicMBean = null;
 
 		try {
-			dynamicMBean = new MyDynamicMBean(pathXml+"/"+filenameU+".xml");
+			dynamicMBean = new MyDynamicMBean(pathXml+"/"+filenameU+".xml", order);
 			dynamicMBean.setDomain(domain);
 			dynamicMBean.setName(name);
 			dynamicMBean.setType(type);
 			mbeanServer.registerMBean(dynamicMBean, new ObjectName(domain + ":type=" + type + ",name=" + name));
 		} catch (Exception e) {
-			System.out.println("fallo getDynamicBean");
-			//e.printStackTrace();
+			e.printStackTrace();
 		}
 
 		/*Monitors ms = loadMonitor(pathXml,filenameU);

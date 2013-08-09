@@ -43,10 +43,10 @@ public class MyDynamicMBean implements DynamicMBean, NotificationEmitter{
 	private String type;
 	private int changeCount=1;
 
-	public MyDynamicMBean(String xmlFileName) throws IOException {
+	public MyDynamicMBean(String xmlFileName, int order) throws IOException {
 		this.properties = new Properties();
 		this.xmlFileName = xmlFileName;
-		loadXml();
+		loadXml(order);
 	}
 
 
@@ -115,7 +115,7 @@ public class MyDynamicMBean implements DynamicMBean, NotificationEmitter{
 	}
 	
 	public Object invoke(String name, Object[] args, String[] sig) throws MBeanException, ReflectionException {
-		if ((name.equals("reload")) && ((args == null) || (args.length == 0)) && ((sig == null) || (sig.length == 0))) {
+		/*if ((name.equals("reload")) && ((args == null) || (args.length == 0)) && ((sig == null) || (sig.length == 0))) {
 			System.out.println("invocado reload");
 			try {
 				loadXml();
@@ -123,7 +123,7 @@ public class MyDynamicMBean implements DynamicMBean, NotificationEmitter{
 			} catch (IOException e) {
 				throw new MBeanException(e);
 			}
-		}
+		}*/
 		throw new ReflectionException(new NoSuchMethodException(name));
 	}
 
@@ -147,13 +147,13 @@ public class MyDynamicMBean implements DynamicMBean, NotificationEmitter{
 		return mbinfo;
 	}
 
-	private void loadXml() throws IOException {
+	private void loadXml(int order) throws IOException {
 		Serializer serializer = new Persister();
 		File source = new File(xmlFileName);
 		try {
 			MyManRes manres= serializer.read(MyManRes.class, source);
 			//mbeaninfo = serializer.read(MyMBeanInfo.class, source);
-			mbeaninfo = manres.getMacroAttributes()[0];
+			mbeaninfo = manres.getMacroAttributes()[order];
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
