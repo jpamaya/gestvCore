@@ -12,6 +12,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 
 import model.MongoDBConnection;
 
@@ -73,19 +76,36 @@ public class RemoteMonitorListener implements NotificationListener {
         }
     }
     public void publicar(String title, String msg, String handback){
+        
         mdbc.setColl("alrts");
         JsonElement jelement = new JsonParser().parse((String) handback);
         JsonObject  jobject = jelement.getAsJsonObject();
-        String mt=jobject.get("montype").toString();
+        String mt=jobject.get("montype").toString().replace("\"", "");
         String montype="anmly";
         if (mt.equals("qos"))
         	montype="anmly";
         else
         	montype="alarm";
+
+        ObjectId objid = new ObjectId();
+        int estampa=objid.getTimeSecond();
         String atrid=jobject.get("atrid").toString();
         atrid=atrid.replace("\"", "");
-        ObjectId objid = new ObjectId();
-		BasicDBObject doc = new BasicDBObject("atr_id", new ObjectId(atrid)).append("tipo", montype).append("title", title).append("msg", msg).append("tstamp", objid.getTimeSecond());
-		mdbc.insert_doc(doc);
+
+        DBCollection coll = mdbc.getColl();
+		BasicDBObject query = new BasicDBObject("atr_id", new ObjectId(atrid)).append("tipo", montype).append("state", new BasicDBObject("$ne", "solved"));
+		DBCursor cursor = coll.find(query);
+		System.out.println("count="+cursor.count());
+        
+        if (cursor.count()==0){
+	        BasicDBObject doc = new BasicDBObject("atr_id", new ObjectId(atrid)).append("tipo", montype).append("title", title).append("msg", msg).append("tstamp_ini", estampa).append("tstamp_last", estampa).append("count", 1).append("state", "noAtt");
+			mdbc.insert_doc(doc);
+        }else{
+			DBObject searchQuery=cursor.next();
+			DBObject modifier = new BasicDBObject("count", 1);
+			DBObject incQuery = new BasicDBObject("$inc", modifier).append("$set", new BasicDBObject().append("tstamp_last", estampa));;
+			coll.update(searchQuery, incQuery);
+        }
+		cursor.close();
     }
 }
