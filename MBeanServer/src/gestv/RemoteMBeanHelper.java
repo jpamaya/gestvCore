@@ -114,7 +114,7 @@ public class RemoteMBeanHelper {
 	}
 	
 	// Cambia el estado de un monitor dado
-	// curl -X PUT http://192.168.119.35:9999/mbs/broadcaster/Webservices/ga1/518bbbb58a3d1ed2aa000083/qos/act
+	// curl -X PUT http://192.168.119.35:9999/mbs/broadcaster/Webservices/ga1/518bbbb58a3d1ed2aa000083/qos/{on|off}
 	@PUT
 	@Path("/{domain}/{type}/{name}/{attribute}/{monitor}/{value}")
 	@Produces(MediaType.TEXT_PLAIN)
@@ -130,7 +130,7 @@ public class RemoteMBeanHelper {
 	}
 	
 	// Cambia el estado de alerta de un MR dado
-	// curl -X PUT http://192.168.119.35:9999/mbs/broadcaster/Webservices/alerts/act
+	// curl -X PUT http://192.168.119.35:9999/mbs/broadcaster/Webservices/alerts/{act|inact}
 	@PUT
 	@Path("/{domain}/{type}/alerts/{value}")
 	@Produces(MediaType.TEXT_PLAIN)

@@ -20,6 +20,7 @@ import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanOperationInfo;
+import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.Notification;
 import javax.management.NotificationEmitter;
@@ -106,12 +107,24 @@ public class MyDynamicMBean implements DynamicMBean, NotificationEmitter{
 			Object value = attr.getValue();
 			this.properties.setProperty(name, changeTypeToString(value));
 			retlist.add(new Attribute(name, value));
-			
 			Notification notification = new AttributeChangeNotification(this, changeCount++, System.currentTimeMillis(), "Attribute value changed", attr.getName(), attr.getValue().getClass().getName(), value, value);
 	        sendNotification(notification, attr);
 		}
 		
 		return retlist;
+	}
+	
+	public void setAttributes(ObjectName oname, AttributeList list) {
+		Attribute[] attrs = (Attribute[]) list.toArray(new Attribute[0]);
+		long timestamp=System.currentTimeMillis();
+		for (Attribute attr : attrs) {
+			String name = attr.getName();
+			Object value = attr.getValue();
+			System.out.println("Entro a setAttributesss");
+			this.properties.setProperty(name, changeTypeToString(value));
+			Notification notification = new AttributeChangeNotification(this, 0, timestamp, "Attribute value changed", attr.getName(), attr.getValue().getClass().getName(), value, value);
+	        sendCompositeNotification(notification, attr);
+		}
 	}
 	
 	public Object invoke(String name, Object[] args, String[] sig) throws MBeanException, ReflectionException {
@@ -197,6 +210,29 @@ public class MyDynamicMBean implements DynamicMBean, NotificationEmitter{
             props.setProperty("domain", getDomain());
             props.setProperty("type", getType());
             props.setProperty("name", getName());
+            props.setProperty("reference", "");
+            notification.setUserData(props);
+            //System.out.println("handback="+triplet.toString());
+            try {
+				listener.handleNotification(notification, new ObjectName(getDomain() + ":type=" + getType()+",name="+getName()));
+			} catch (MalformedObjectNameException e) {
+				e.printStackTrace();
+			}
+        }
+    }
+
+	private void sendCompositeNotification (Notification notification, Attribute attribute) {
+        for (int aa = 0; aa < _listeners.size(); aa++) {
+            ListenerFilterHandbackTriplet triplet = (ListenerFilterHandbackTriplet)_listeners.get(aa);
+            NotificationListener listener = triplet.getListener();
+            Properties props = new Properties();
+            props.setProperty("attribute", attribute.getName());
+            props.setProperty("value", changeTypeToString(attribute.getValue()));
+            props.setProperty("domain", getDomain());
+            props.setProperty("type", getType());
+            props.setProperty("name", getName());
+            props.setProperty("reference", getType()+"_"+notification.getTimeStamp());
+            System.out.println(props.getProperty("reference"));
             notification.setUserData(props);
             //System.out.println("handback="+triplet.toString());
             try {

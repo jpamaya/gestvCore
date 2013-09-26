@@ -50,15 +50,28 @@ public class RemoteMessageListener implements NotificationListener {
 	            mrid=mrid.replace("\"", "");
 	            maid=maid.replace("\"", "");
 	        	Properties props = (Properties)notification.getUserData();
-	        	String response = (String)props.get("attribute");
-	            String response2 = (String)props.get("value");
+	        	String atrname = (String)props.get("attribute");
+	            String value = (String)props.get("value");
+	            String reference = (String)props.get("reference");
+	            String maname = (String)props.get("name");
+	            int timestamp = (int) notification.getTimeStamp();
+	            
 	            ObjectId aid;
-	            aid=getAtrId(response, maid);
-	        	mdbc.setColl("atr_hsts");
-	        	ObjectId objid = new ObjectId(); 
-				BasicDBObject doc = new BasicDBObject("atr_id", aid).append("value", response2).append("tstamp", objid.getTimeSecond());
-				mdbc.insert_doc(doc);
-	        	System.out.println("<<Remote>> "+notification.getType() + " number "+ notification.getSequenceNumber() + " in MBean " + notification.getSource() + " with attribute = "+ response + " value = "+response2 + " at "+ formatter.format(notification.getTimeStamp()));				
+	            aid=getAtrId(atrname, maid);
+	            String changeType="";
+	            if(reference.equals("")){
+		        	mdbc.setColl("atr_hsts");
+					BasicDBObject doc = new BasicDBObject("atr_id", aid).append("value", value).append("tstamp", timestamp);
+					mdbc.insert_doc(doc);
+					changeType="simple";
+	            }else{
+	            	String compositeHistory=getReference(maname,timestamp);
+		        	mdbc.setColl("atr_hsts");
+					BasicDBObject doc = new BasicDBObject("atr_id", aid).append("value", value).append("tstamp", timestamp).append("reference", compositeHistory);
+					mdbc.insert_doc(doc);
+					changeType="composite";
+	            }
+	        	System.out.println("<<Remote>> "+notification.getType() +" "+changeType+ " number "+ notification.getSequenceNumber() + " in MBean " + notification.getSource() + " with attribute = "+ atrname + " value = "+value + " at "+ formatter.format(notification.getTimeStamp()));
 	        } catch (Exception e) {
 	        	trace(e.toString());
 	        }
@@ -92,7 +105,35 @@ public class RemoteMessageListener implements NotificationListener {
     	}
     }
     
-    public ObjectId getAtrId(String atrname, String maid){
+    private String getReference(String maname, int timestamp) {
+    	int count=0;
+    	DBCollection coll;
+		BasicDBObject query1;
+		DBCursor cursor1;
+		DB db = mdbc.getDb();
+		String reference=maname+"_"+timestamp;
+		//Get existing reference if exist
+    	coll = db.getCollection("composite_histories");
+		query1 = new BasicDBObject("reference", reference);
+		cursor1 = coll.find(query1);
+		try {
+		   while(cursor1.hasNext()) {
+			   count++;
+			   cursor1.next();
+		   }
+		} finally {
+		   cursor1.close();
+		}
+		//If reference doesn't exist we create it.
+		if(count == 0){
+			mdbc.setColl("composite_histories");
+        	BasicDBObject doc = new BasicDBObject("reference", reference).append("timestamp", timestamp);
+			mdbc.insert_doc(doc);
+		}
+		return reference;
+	}
+
+	public ObjectId getAtrId(String atrname, String maid){
     	ObjectId aid = null;
     	DBCollection coll;
 		BasicDBObject query1;
@@ -112,5 +153,5 @@ public class RemoteMessageListener implements NotificationListener {
 		   cursor1.close();
 		}
 		return aid;
-    }
+    }    
 }
