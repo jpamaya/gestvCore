@@ -85,7 +85,7 @@ public class MyDynamicMBean implements DynamicMBean, NotificationEmitter{
 			throw new AttributeNotFoundException(name);
 		Object value = attribute.getValue();
 		this.properties.setProperty(name, changeTypeToString(value));
-		Notification notification = new AttributeChangeNotification(this, changeCount++, System.currentTimeMillis(), "Attribute value changed", attribute.getName(), attribute.getValue().getClass().getName(), value, value);
+		Notification notification = new AttributeChangeNotification(this, changeCount++, System.currentTimeMillis()/1000, "Attribute value changed", attribute.getName(), attribute.getValue().getClass().getName(), value, value);
         sendNotification(notification, attribute);
 	}
 
@@ -116,27 +116,17 @@ public class MyDynamicMBean implements DynamicMBean, NotificationEmitter{
 	
 	public void setAttributes(ObjectName oname, AttributeList list) {
 		Attribute[] attrs = (Attribute[]) list.toArray(new Attribute[0]);
-		long timestamp=System.currentTimeMillis();
+		long timestamp=System.currentTimeMillis()/1000;
 		for (Attribute attr : attrs) {
 			String name = attr.getName();
 			Object value = attr.getValue();
-			System.out.println("Entro a setAttributesss");
 			this.properties.setProperty(name, changeTypeToString(value));
 			Notification notification = new AttributeChangeNotification(this, 0, timestamp, "Attribute value changed", attr.getName(), attr.getValue().getClass().getName(), value, value);
-	        sendCompositeNotification(notification, attr);
+	        sendNotification(notification, attr);
 		}
 	}
 	
 	public Object invoke(String name, Object[] args, String[] sig) throws MBeanException, ReflectionException {
-		/*if ((name.equals("reload")) && ((args == null) || (args.length == 0)) && ((sig == null) || (sig.length == 0))) {
-			System.out.println("invocado reload");
-			try {
-				loadXml();
-				return null;
-			} catch (IOException e) {
-				throw new MBeanException(e);
-			}
-		}*/
 		throw new ReflectionException(new NoSuchMethodException(name));
 	}
 
@@ -191,7 +181,6 @@ public class MyDynamicMBean implements DynamicMBean, NotificationEmitter{
 	public void addNotificationListener(NotificationListener listener, NotificationFilter filter, Object handback) throws IllegalArgumentException {
 		if (listener != null)
             	_listeners.add(new ListenerFilterHandbackTriplet(listener, filter, handback));
-		//System.out.println("handback="+handback);
 	}
 
 	public void removeNotificationListener(NotificationListener arg0) throws ListenerNotFoundException {
@@ -210,29 +199,6 @@ public class MyDynamicMBean implements DynamicMBean, NotificationEmitter{
             props.setProperty("domain", getDomain());
             props.setProperty("type", getType());
             props.setProperty("name", getName());
-            props.setProperty("reference", "");
-            notification.setUserData(props);
-            //System.out.println("handback="+triplet.toString());
-            try {
-				listener.handleNotification(notification, new ObjectName(getDomain() + ":type=" + getType()+",name="+getName()));
-			} catch (MalformedObjectNameException e) {
-				e.printStackTrace();
-			}
-        }
-    }
-
-	private void sendCompositeNotification (Notification notification, Attribute attribute) {
-        for (int aa = 0; aa < _listeners.size(); aa++) {
-            ListenerFilterHandbackTriplet triplet = (ListenerFilterHandbackTriplet)_listeners.get(aa);
-            NotificationListener listener = triplet.getListener();
-            Properties props = new Properties();
-            props.setProperty("attribute", attribute.getName());
-            props.setProperty("value", changeTypeToString(attribute.getValue()));
-            props.setProperty("domain", getDomain());
-            props.setProperty("type", getType());
-            props.setProperty("name", getName());
-            props.setProperty("reference", getType()+"_"+notification.getTimeStamp());
-            System.out.println(props.getProperty("reference"));
             notification.setUserData(props);
             //System.out.println("handback="+triplet.toString());
             try {
