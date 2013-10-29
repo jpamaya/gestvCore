@@ -77,6 +77,10 @@ public class MBSAConnection {
 	public MBeanServerConnection getAgentMbeanServer() {
 		return agentMbeanServer;
 	}
+	
+	public void setAgentMbeanServer(MBeanServerConnection agentMbeanServer){
+		this.agentMbeanServer=agentMbeanServer;
+	}
 
 	public String getDirip() {
 		return dirip;
@@ -116,6 +120,11 @@ public class MBSAConnection {
 
 	public void setConn(JMXConnector conn) {
 		this.conn = conn;
+		try {
+			setAgentMbeanServer(conn.getMBeanServerConnection());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public String getDomain() {

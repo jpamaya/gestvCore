@@ -71,9 +71,14 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 		MBSAConnection connection=MBSAConnections.searchConnection(dirip, port);
 		if(connection==null){
 			connection = new MBSAConnection(dirip, port, domain, type);
-			connection.connect();
+			if(!domain.equals("SNMPInstrumentingServer"))
+				connection.connect();
+			else{
+				connection.setConn(MBSAConnections.getConnection(0).getConn());
+			}
 			if(connection.getConn()!=null){
-				connection.getConn().addConnectionNotificationListener(new DynamicMBeanMirrorFactory(), null, null);
+				if(!domain.equals("SNMPInstrumentingServer"))
+					connection.getConn().addConnectionNotificationListener(new DynamicMBeanMirrorFactory(), null, null);
 				MBSAConnections.add(connection);
 				importAll(connection);
 				retorno="success";

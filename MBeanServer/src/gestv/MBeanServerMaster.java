@@ -8,13 +8,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.management.MBeanServer;
+import javax.ws.rs.core.MultivaluedMap;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.container.httpserver.HttpServerFactory;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
 import com.sun.net.httpserver.HttpServer;
 import mbean.DynamicMBeanMirrorFactory;
 import mbean.MBSAConnection;
@@ -25,6 +30,9 @@ public class MBeanServerMaster {
 	
     private MBeanServer masterMbeanServer;
     private static final String BASE_URI = "http://0.0.0.0:9999/mbs/";
+    private static final String INSTRUMENTING_SERVER_IP = "192.168.119.35";
+    private static final String INSTRUMENTING_SERVER_PORT = "9998";
+    private static final String INSTRUMENTING_SERVER_WS_PORT = "9997";
     private static HttpServer server; 
     
 	public static void main(String[] args) {
@@ -95,12 +103,23 @@ public class MBeanServerMaster {
 			MongoDBConnection mdbc = MongoDBConnection.getInstance();
 			DB db = mdbc.getDb();
 			
+			
+			MBSAConnection connection;
+			connection = new MBSAConnection(INSTRUMENTING_SERVER_IP, INSTRUMENTING_SERVER_PORT, "SNMPInstrumentingServer", "SNMPInstrumentingServer");
+			connection.connect();
+			if(connection.getConn()!=null){
+				connection.getConn().addConnectionNotificationListener(new DynamicMBeanMirrorFactory(), null, null);
+				MBSAConnections.add(connection);
+			}
 
 			DBCollection coll = db.getCollection("man_rscs");
-			BasicDBObject query = new BasicDBObject("_type", "Serv").append("mngbl", true);
+			BasicDBObject query = new BasicDBObject("mngbl", true);
 			
 			DBCursor cursor = coll.find(query);
 			DBObject obj,obj1;
+			String domain,type,ip;
+			Client client = Client.create();
+			WebResource webResource = client.resource("http://"+INSTRUMENTING_SERVER_IP+":"+INSTRUMENTING_SERVER_WS_PORT+"/snmp_mbs/register");
 			try {
 			   while(cursor.hasNext()) {
 				   obj=cursor.next();
@@ -110,8 +129,18 @@ public class MBeanServerMaster {
 					   port=Integer.toString(((Integer) obj1.get("port")));
 				   else
 					   port=Integer.toString(((Double) obj1.get("port")).intValue());
-
-			       DynamicMBeanMirrorFactory.register((String)obj1.get("ip"), port, (String)obj.get("domain"), (String)obj.get("name"));
+				   ip=(String)obj1.get("ip");
+				   domain=(String)obj.get("domain");
+				   type=(String)obj.get("name");
+				   if(domain.equals("SNMPInstrumentingServer")){
+					   MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
+					   queryParams.add("domain", "SNMPInstrumentingServer");
+					   queryParams.add("type", type);
+					   ClientResponse s = webResource.queryParams(queryParams).post(ClientResponse.class, queryParams);
+					   if(s.getEntity(String.class).equals("ok"))
+						   DynamicMBeanMirrorFactory.register(ip, port, domain, type);
+				   }else
+					   DynamicMBeanMirrorFactory.register(ip, port, domain, type);
 			   }
 			} finally {
 			   cursor.close();
@@ -125,6 +154,7 @@ public class MBeanServerMaster {
 		String ip,port,domain,type;
 		Scanner scanner = new Scanner(System.in);
 		//DynamicMBeanMirrorFactory.register("192.168.119.35", "10001", "broadcaster", "Webservices");
+		//DynamicMBeanMirrorFactory.register("192.168.119.35", "9998", "SNMPInstrumentingServer", "BroadcasterServer");
 		//DynamicMBeanMirrorFactory.removeAll(MBSAConnections.searchConnection("192.168.119.35", "10001"));
 		//DynamicMBeanMirrorFactory.setMonitor("broadcaster", "Webservices", "ga1", "518bbbb58a3d1ed2aa000083", "qos", "off");
 		//DynamicMBeanMirrorFactory.setMonitor("broadcaster", "Webservices", "ga1", "518bbbb58a3d1ed2aa000083", "qos", "on");

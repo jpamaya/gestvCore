@@ -12,6 +12,10 @@ public class MBSAConnections {
 	public static void add(MBSAConnection connection) {
 		connections.add(connection);
 	}	
+	
+	public static MBSAConnection getConnection(int i){
+		return connections.get(i);
+	}
 
 	public static void removeConnection(JMXConnector conn){
 		connections.remove(searchConnection(conn));
