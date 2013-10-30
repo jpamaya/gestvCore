@@ -13,6 +13,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 import mbean.DynamicMBeanMirrorFactory;
 
@@ -30,7 +36,17 @@ public class RemoteMBeanHelper {
 			@FormParam("port") String port,
 			@FormParam("domain") String domain, 
 			@FormParam("type") String type) {
-		DynamicMBeanMirrorFactory.register(ip, port, domain, type);
+	   if(domain.equals("SNMPInstrumentingServer")){
+			Client client = Client.create();
+			WebResource webResource = client.resource("http://"+MBeanServerMaster.INSTRUMENTING_SERVER_IP+":"+MBeanServerMaster.INSTRUMENTING_SERVER_WS_PORT+"/snmp_mbs/register");
+		    MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
+		    queryParams.add("domain", "SNMPInstrumentingServer");
+		    queryParams.add("type", type);
+		    ClientResponse s = webResource.queryParams(queryParams).post(ClientResponse.class, queryParams);
+		    if(s.getEntity(String.class).equals("ok"))
+		    	DynamicMBeanMirrorFactory.register(ip, port, domain, type);
+	   }else
+		   DynamicMBeanMirrorFactory.register(ip, port, domain, type);
 		return "";
 	}
 

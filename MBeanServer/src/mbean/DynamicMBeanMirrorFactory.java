@@ -1,5 +1,7 @@
 package mbean;
 
+import gestv.MBeanServerMaster;
+
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ import javax.management.ReflectionException;
 import javax.management.monitor.Monitor;
 import javax.management.remote.JMXConnectionNotification;
 import javax.management.remote.JMXConnector;
+import javax.ws.rs.core.MultivaluedMap;
 
 import org.bson.types.ObjectId;
 
@@ -40,6 +43,10 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
 
 import model.MongoDBConnection;
 import model.MyCounterMonitor;
@@ -175,6 +182,10 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 		System.out.println(connection.getType());
 		Set<ObjectName> names = connection.getMbeanNames();
         for (ObjectName name : names) {
+ 		    if(connection.getDomain().equals("SNMPInstrumentingServer")){
+ 				WebResource webResource = Client.create().resource("http://"+MBeanServerMaster.INSTRUMENTING_SERVER_IP+":"+MBeanServerMaster.INSTRUMENTING_SERVER_WS_PORT+"/snmp_mbs/"+connection.getType()+"/"+name.getKeyProperty("name"));
+ 			    webResource.delete(String.class);
+ 		    }
             try {
         		unloadMonitors(connection);
         		masterMbeanServer.unregisterMBean(name);

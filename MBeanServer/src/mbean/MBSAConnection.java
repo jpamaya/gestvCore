@@ -120,10 +120,12 @@ public class MBSAConnection {
 
 	public void setConn(JMXConnector conn) {
 		this.conn = conn;
-		try {
-			setAgentMbeanServer(conn.getMBeanServerConnection());
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (conn != null){
+			try {
+				setAgentMbeanServer(conn.getMBeanServerConnection());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

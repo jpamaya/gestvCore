@@ -30,9 +30,9 @@ public class MBeanServerMaster {
 	
     private MBeanServer masterMbeanServer;
     private static final String BASE_URI = "http://0.0.0.0:9999/mbs/";
-    private static final String INSTRUMENTING_SERVER_IP = "192.168.119.35";
-    private static final String INSTRUMENTING_SERVER_PORT = "9998";
-    private static final String INSTRUMENTING_SERVER_WS_PORT = "9997";
+    public static final String INSTRUMENTING_SERVER_IP = "192.168.119.35";
+    public static final String INSTRUMENTING_SERVER_PORT = "9998";
+    public static final String INSTRUMENTING_SERVER_WS_PORT = "9997";
     private static HttpServer server; 
     
 	public static void main(String[] args) {
