@@ -1,6 +1,5 @@
 package model;
 
-import javax.management.monitor.CounterMonitor;
 import javax.management.monitor.Monitor;
 
 import org.simpleframework.xml.Attribute;
@@ -50,16 +49,10 @@ public class MyThresholdMonitor implements MyMonitor {
 		this.offset = offset;
 	}
 	
-	public ThresholdMonitor getCounterMonitor(){
-		ThresholdMonitor cm = new ThresholdMonitor();
-		cm.setObservedAttribute(getAttribute());
-		cm.setDifferenceMode(false);
-		cm.setGranularityPeriod(getPeriod());
-		cm.setInitThreshold(getThreshold());
-		cm.setNotify(true);
-		cm.setOffset(getOffset());
-		cm.setModulus(5);
-		return cm;
+	public ThresholdMonitor getThresholdMonitor(){
+		ThresholdMonitor tm = new ThresholdMonitor();
+		tm.setObservedAttribute(getAttribute());
+		return tm;
 	}
 
 	public void setName(String name) {
@@ -75,7 +68,7 @@ public class MyThresholdMonitor implements MyMonitor {
 	}
 
 	public Monitor getMonitor() {
-		return getCounterMonitor();
+		return getThresholdMonitor();
 	}
 
 	@Override

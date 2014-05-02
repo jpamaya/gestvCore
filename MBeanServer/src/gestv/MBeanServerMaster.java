@@ -136,9 +136,12 @@ public class MBeanServerMaster {
 					   MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
 					   queryParams.add("domain", "SNMPInstrumentingServer");
 					   queryParams.add("type", type);
-					   ClientResponse s = webResource.queryParams(queryParams).post(ClientResponse.class, queryParams);
-					   if(s.getEntity(String.class).equals("ok"))
-						   DynamicMBeanMirrorFactory.register(ip, port, domain, type);
+					   try{
+						   ClientResponse s = webResource.queryParams(queryParams).post(ClientResponse.class, queryParams);
+						   if(s.getEntity(String.class).equals("ok"))
+							   DynamicMBeanMirrorFactory.register(ip, port, domain, type);
+					   }catch(com.sun.jersey.api.client.ClientHandlerException e){
+					   }
 				   }else
 					   DynamicMBeanMirrorFactory.register(ip, port, domain, type);
 			   }

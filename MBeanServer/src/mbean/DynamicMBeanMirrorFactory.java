@@ -53,6 +53,7 @@ import model.MyCounterMonitor;
 import model.MyDynamicMBeanMirror;
 import model.MyGaugeMonitor;
 import model.MyMonitor;
+import model.MyThresholdMonitor;
 //import model.MyThresholdMonitor;
 //import model.MyStringMonitor;
 import mbean.RemoteMessageListener;
@@ -473,6 +474,8 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 				   obj1=cursor1.next();
 				   try {
 						obj2=(DBObject) obj1.get("qos_mon");
+						System.out.println("*******************"+(ObjectId)obj1.get("_id"));
+						System.out.println("*******************"+(String)obj1.get("name"));
 						if(obj2 != null && obj2.get("state").equals("act")){
 							MyMonitor mm;
 							if(obj2.get("_type").equals("AlrMntrCntr"))
@@ -494,27 +497,45 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 						e.printStackTrace();
 					}
 			   }
+		   
 		   	} finally {
 			   cursor1.close();
 			}
+	   
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
-		}		   
+		}	
+		   System.out.println("paso 1-----------------------");
+		   MyMonitor mm;
+		   mm = createThresholdMonitor("perfil");
+		   System.out.println("paso 2-----------------------"+mm.getName());
+		   System.out.println(connection.getDomain());
+		   System.out.println(connection.getType());
+		   System.out.println((String)objma.get("name"));
+		   System.out.println(new ObjectId("521d2ad88a3d1e21e30000aa"));
+		   createMonitor("alr", mm, connection.getDomain(), connection.getType(), (String)objma.get("name"), new ObjectId("521d2ad88a3d1e21e30000aa"));
+		   System.out.println("paso 3-----------------------");				
 	}
 	
 	private static void createMonitor(String tipo, MyMonitor mm, String domain, String type, String mcrName, ObjectId atrid){
 		String mon="";
+		System.out.println("paso 4-----------------------"+tipo);
 		if(tipo.equals("qos"))
 			mon="QoSMonitors";
 		else
 			mon="AlrMonitors";
-		
+		System.out.println("paso 4.1-----------------------"+tipo);
 		Monitor m = mm.getMonitor();
+		System.out.println("paso 5-----------------------"+m.getObservedAttribute());
 		String moname = mon+":type="+domain+",resource="+type+",macroatr="+mcrName+",attribute="+m.getObservedAttribute();
+		System.out.println("paso 6-----------------------"+moname);
 		mm.setName(moname);
+		System.out.println("paso 7-----------------------");
 		try {
 			m.addObservedObject(new ObjectName(domain+":type="+type+",name="+mcrName));
+			System.out.println("paso 8-----------------------");
 			masterMbeanServer.registerMBean(m, new ObjectName(moname));
+			System.out.println("paso 9-----------------------");
 		} catch (InstanceAlreadyExistsException e) {
 			e.printStackTrace();
 		} catch (MBeanRegistrationException e) {
@@ -555,6 +576,13 @@ public class DynamicMBeanMirrorFactory implements NotificationListener{
 		return gm1;
 	}
 	
+	private static MyMonitor createThresholdMonitor(String atr){
+		MyThresholdMonitor tm1=new MyThresholdMonitor();
+		tm1.setAttribute(atr);
+		tm1.setPeriod(1000L);
+		return tm1;
+	}
+		
 	public static void unloadMonitors(MBSAConnection connection){
 		Set<?> dynamicData;
 		try {
